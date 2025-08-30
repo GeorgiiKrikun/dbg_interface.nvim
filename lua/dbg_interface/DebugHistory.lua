@@ -1,4 +1,4 @@
-local DebugEntry = require('DebugEntry')
+local DebugEntry = require('dbg_interface.DebugEntry')
 local Class = require('pl.class')
 local Path = require('pl.path')
 local List = require('pl.List')
