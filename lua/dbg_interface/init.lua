@@ -8,33 +8,7 @@ local tablex = require('pl.tablex')
 local async = require('plenary.async')
 local Snacks = require('snacks')
 
-local configs =
-  {
-    vscode = {
-      config = {
-        name = "Tests",
-        type = "cppdbg",
-        request = "launch",
-        program = "",
-        stopAtEntry = false,
-        cwd = "/app/",
-        environment = {},
-        externalConsole = false,
-        justMyCode = true,
-        args="",
-        setupCommands = {
-          {
-             text = '-enable-pretty-printing',
-             description =  'enable pretty printing',
-             ignoreFailures = false
-          },
-        },
-      },
-      opts = {
-        filetype = { "cpp"},
-      }
-    }
-  }
+local configs = {}
 
 M.debug_history = DebugHistory.load_history()
 
@@ -114,7 +88,7 @@ function M.gen_items(history, custom_name)
   return items
 end
 
-function M.run_picker(custom_name)
+function M.run_existing_dbg_cfg(custom_name)
   Snacks.picker.pick({
     items = M.gen_items(M.debug_history, custom_name),
     preview = "preview",
@@ -123,7 +97,24 @@ function M.run_picker(custom_name)
       picker:close()
       local entry = M.debug_history:sorted_recent_by_type(custom_name).entries[item.idx]
       local config, opts = M.get_config(custom_name, entry.prog, entry.args)
+      M.debug_history:upd_ts(entry)
+      M.debug_history:save_history()
       dap.run(config, opts)
+    end,
+  })
+end
+
+
+function M.delete_existing_dbg_cfg(custom_name)
+  Snacks.picker.pick({
+    items = M.gen_items(M.debug_history, custom_name),
+    preview = "preview",
+    format = "text",
+    confirm = function(picker, item)
+      picker:close()
+      local entry = M.debug_history:sorted_recent_by_type(custom_name).entries[item.idx]
+      M.debug_history:remove_entry(entry)
+      M.debug_history:save_history()
     end,
   })
 end
@@ -141,22 +132,12 @@ function M.get_cli_cmd(custom_name)
   })
 end
 
--- function M.reload()
--- 	local current_file, _ = Path.splitext(Path.basename(debug.getinfo(1, "S").source:sub(2)))
--- 	package.loaded[current_file] = nil
--- 	return require(current_file)
--- end
---
-
 function M.print_configs()
   print("Current DAP Configurations:")
   print(vim.inspect(configs))
 end
 
 function M.setup(user_opts)
-  -- We merge the user's options into our default config table.
-  -- 'force' means the user's values will overwrite the defaults.
-  -- 'user_opts or {}' prevents errors if the user calls setup() with no arguments.
   configs = vim.tbl_deep_extend('force', configs, user_opts or {})
 end
 

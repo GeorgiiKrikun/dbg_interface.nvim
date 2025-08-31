@@ -55,6 +55,15 @@ function DebugHistory:add_entry(entry)
   end
 end
 
+function DebugHistory:remove_entry(entry)
+  local idx = self.entries:index(entry)
+  if idx then
+    self.entries:remove(idx)
+  else
+    vim.notify("Entry " .. entry .. " not found in history, cannot remove", vim.log.levels.WARN)
+  end
+end
+
 function DebugHistory:upd_ts(entry)
   local idx = self.entries:index(entry)
   vim.notify("Updating timestamp for entry: " .. entry, vim.log.levels.INFO)
@@ -63,10 +72,6 @@ function DebugHistory:upd_ts(entry)
   else
     vim.notify("Entry " .. entry .. " not found in history, cannot update timestamp", vim.log.levels.WARN)
   end
-end
-
-function DebugHistory:dump()
-
 end
 
 function DebugHistory:size()
