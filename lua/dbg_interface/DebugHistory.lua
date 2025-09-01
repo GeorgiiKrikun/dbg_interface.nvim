@@ -19,7 +19,7 @@ function DebugHistory.load_history()
           return DebugHistory.new{init = entries}
         end
     end
-    error("Failed to load history from " .. DebugHistory.history_storage .. ". File not found or invalid format.")
+    return DebugHistory.new{}
 end
 
 function DebugHistory:save_history()
