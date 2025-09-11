@@ -66,7 +66,7 @@ end
 
 function DebugHistory:upd_ts(entry)
   local idx = self.entries:index(entry)
-  vim.notify("Updating timestamp for entry: " .. entry, vim.log.levels.INFO)
+  vim.notify("Updating timestamp for entry: " .. entry, vim.log.levels.DEBUG)
   if idx then
     self.entries[idx].ts = entry.ts
   else
@@ -84,9 +84,7 @@ function DebugHistory.new(kwargs)
 end
 
 function DebugHistory:sorted_recent_by_type(type)
-  print("Filtering entries by type: " .. type)
   local filtered_entries = self.entries:filter(function(entry) return entry.type == type end)
-  print("Filtered entries:\n" .. tostring(filtered_entries))
   local sorted_entries = filtered_entries:sort():reverse()
   return DebugHistory.new{init = sorted_entries}
 end
@@ -109,7 +107,6 @@ function DebugHistory.test()
   dh:add_entry(entry1)
   dh:add_entry(entry2)
   assert(entry1 == entry3, "entry1 should be equal to entry3")
-  print("dh:" ..  dh:size())
   assert(dh:size() == 2, "DebugHistory should have 2 entries")
   dh:add_entry(entry3)
   assert(dh:size() == 2, "DebugHistory should still have 2 entries after adding entry3 again")
@@ -140,7 +137,6 @@ end
 
 function DebugHistory.reload()
 	local current_file, _ = Path.splitext(Path.basename(debug.getinfo(1, "S").source:sub(2)))
-	print("Reloading from file: " .. current_file)
 	package.loaded[current_file] = nil
 	return require(current_file)
 end

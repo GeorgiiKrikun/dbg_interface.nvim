@@ -58,12 +58,11 @@ function DebugEntry.test()
   local entry2 = DebugEntry:new{prog = "p1", args = "a2 a3", type = "t1"}
   local entry3 = DebugEntry:new{"p2", "5 6"}
   assert(entry1 < entry2, "entry1 timestamp" .. entry1.timestamp .. " should be less than entry2 timestamp " .. entry2.timestamp)
-  vim.notify("concaterate test " .. entry1 .. " test2", vim.log.levels.INFO)
+  vim.notify("concaterate test " .. entry1 .. " test2", vim.log.levels.DEBUG)
 end
 
 function DebugEntry.reload()
   local current_file, _ = Path.splitext(Path.basename(debug.getinfo(1, "S").source:sub(2)))
-  print("Reloading from file: " .. current_file)
   package.loaded[current_file] = nil
   return require(current_file)
 end

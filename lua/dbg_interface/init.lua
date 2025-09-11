@@ -21,7 +21,7 @@ function M.parse_args(arg_string)
 end
 
 function M.get_config(custom_name, executable, args) 
-  vim.notify("Getting configuration for type: " .. tostring(custom_name), vim.log.levels.INFO)
+  vim.notify("Getting configuration for type: " .. tostring(custom_name), vim.log.levels.DEBUG)
   local config = tablex.deepcopy(configs[custom_name].config)
   local opts = tablex.deepcopy(configs[custom_name].opts)
 
@@ -29,7 +29,7 @@ function M.get_config(custom_name, executable, args)
     vim.notify("No configuration found for type: " .. tostring(custom_name), vim.log.levels.ERROR)
     error()
   end
-  vim.notify("Found configuration for type " .. vim.inspect(custom_name) .. ": " .. vim.inspect(config), vim.log.levels.INFO)
+  vim.notify("Found configuration for type " .. vim.inspect(custom_name) .. ": " .. vim.inspect(config), vim.log.levels.DEBUG)
   config.program = executable
   config.args = M.parse_args(args)
   return config, opts
@@ -64,7 +64,7 @@ function M.dbg_args_async(custom_name)
     end
  
     local config, opts = M.get_config(custom_name, executable, flags)
-    vim.notify("Starting DAP with config: " .. vim.inspect(config), vim.log.levels.INFO)
+    vim.notify("Starting DAP with config: " .. vim.inspect(config), vim.log.levels.DEBUG)
     dap.run(config, opts)
 
     -- Update history
@@ -127,7 +127,6 @@ function M.get_cli_cmd(custom_name)
     confirm = function(picker, item)
       picker:close()
       local entry = M.debug_history:sorted_recent_by_type(custom_name).entries[item.idx]
-      print(entry:cmd())
     end,
   })
 end
