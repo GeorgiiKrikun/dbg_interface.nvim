@@ -62,13 +62,33 @@ function M.dbg_args_async(custom_name)
         vim.notify('No flags provided, cancelling.', vim.log.levels.WARN)
         return
     end
+
+    local name = awaitable_input({
+      prompt = 'Name (optional): ',
+    })
+
+    if name == nil then
+      vim.notify('No name provided, cancelling.', vim.log.levels.WARN)
+      return
+    end
+
+    if name == "" then
+      name = executable .. " " .. flags
+    end
+
  
     local config, opts = M.get_config(custom_name, executable, flags)
     vim.notify("Starting DAP with config: " .. vim.inspect(config), vim.log.levels.DEBUG)
     dap.run(config, opts)
 
     -- Update history
-    M.debug_history:add_entry(DebugEntry{type = custom_name, prog=executable, args=flags})
+    M.debug_history:add_entry(DebugEntry{
+      name = name,
+      type = custom_name,
+      prog=executable,
+      args=flags
+    })
+
     M.debug_history:save_history()
 
   end, function(err)
@@ -82,7 +102,7 @@ function M.gen_items(history, custom_name)
   local items = {}
   local sorted_items = history:sorted_recent_by_type(custom_name)
   for _, val in ipairs(sorted_items.entries) do
-    local item = { text = val:cmd(), preview = { text = "Preview for " .. val.prog .. " " .. val.args }, }
+    local item = { text = val.name, preview = { text = val.prog .. " " .. val.args }, }
     table.insert(items, item)
   end
   return items
@@ -103,7 +123,6 @@ function M.run_existing_dbg_cfg(custom_name)
     end,
   })
 end
-
 
 function M.delete_existing_dbg_cfg(custom_name)
   Snacks.picker.pick({

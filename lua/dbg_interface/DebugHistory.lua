@@ -6,7 +6,6 @@ local tablex = require('pl.tablex')
 local DebugHistory = Class()
 
 DebugHistory.history_storage = vim.fn.stdpath('data') .. '/debug_configs_history.json'
-DebugHistory.max_entries = 20
 
 function DebugHistory.load_history()
     local file = io.open(DebugHistory.history_storage, "r")

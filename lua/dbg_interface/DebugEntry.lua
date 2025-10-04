@@ -8,6 +8,7 @@ function DebugEntry:_init(kwargs)
   self.prog = kwargs.prog or ""
   self.args = kwargs.args or ""
   self.type = kwargs.type or ""
+  self.name = kwargs.name or self.prog .. " " .. self.args
   self.timestamp = os.time()
 end
 
@@ -22,6 +23,7 @@ function DebugEntry.from_table(tbl)
     prog = tbl.prog,
     args = tbl.args,
     type = tbl.type,
+    name = tbl.name or (tbl.prog .. " " .. tbl.args),
     timestamp = tbl.timestamp
   }
 end
@@ -35,7 +37,7 @@ function DebugEntry:__eq(other)
 end
 
 function DebugEntry:__tostring()
-  return "DebugEntry(type = " .. self.type .. "; prog=" .. self.prog .. "; args=" .. self.args .. ")"
+  return "DebugEntry(name = " .. self.name .. "; type = " .. self.type .. "; prog=" .. self.prog .. "; args=" .. self.args .. ")"
 end
 
 function DebugEntry:cmd()
