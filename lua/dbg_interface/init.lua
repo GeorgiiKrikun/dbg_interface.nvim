@@ -29,18 +29,91 @@ function M.get_config(custom_name, executable, args)
     vim.notify("No configuration found for type: " .. tostring(custom_name), vim.log.levels.ERROR)
     error()
   end
+
   vim.notify("Found configuration for type " .. vim.inspect(custom_name) .. ": " .. vim.inspect(config), vim.log.levels.DEBUG)
   config.program = executable
   config.args = M.parse_args(args)
+
   return config, opts
 end
 
+--- Opens a floating window to edit a list of arguments.
+-- @param initial_flags string The initial space-separated flags to edit.
+-- @param callback function A function to call with the new flags string when done.
+function M.edit_flags(initial_flags, callback)
+  -- 1. Parse the initial string into a table of flags (one per line)
+  -- A simple split by space. A more robust solution would handle quoted args.
+  local flags_table = {}
+  for flag in string.gmatch(initial_flags, "[^%s]+") do
+    table.insert(flags_table, flag)
+  end
+
+  -- 2. Create a new scratch buffer
+  local buf = vim.api.nvim_create_buf(false, true) -- Not listed, scratch buffer
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, flags_table)
+  vim.bo[buf].filetype = 'debugger-flags' -- Set a custom filetype for completion
+
+  -- 3. Calculate floating window dimensions
+  local width = math.floor(vim.o.columns * 0.6)
+  local height = math.floor(vim.o.lines * 0.5)
+  local row = math.floor((vim.o.lines - height) / 2)
+  local col = math.floor((vim.o.columns - width) / 2)
+
+  -- 4. Open the floating window
+  local win = vim.api.nvim_open_win(buf, true, {
+    relative = 'editor',
+    width = width,
+    height = height,
+    row = row,
+    col = col,
+    style = 'minimal',
+    border = 'rounded',
+  })
+  vim.wo[win].winhl = 'Normal:FloatNormal' -- Optional: custom highlighting
+
+  -- 5. Set buffer-local keymaps for accepting or canceling
+  local function close_win()
+    if vim.api.nvim_win_is_valid(win) then
+      vim.api.nvim_win_close(win, true)
+    end
+  end
+
+  -- Accept with <CR>
+  vim.keymap.set('n', '<CR>', function()
+    local final_flags_table = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+    -- Filter out any empty lines
+    local non_empty_flags = {}
+    for _, flag in ipairs(final_flags_table) do
+        if flag ~= '' then
+            table.insert(non_empty_flags, flag)
+        end
+    end
+    -- Join the table back into a single string and call the callback
+    callback(table.concat(non_empty_flags, ' '))
+    close_win()
+  end, { buffer = buf, nowait = true })
+
+  -- Cancel with 'q' or <Esc>
+  vim.keymap.set('n', 'q', close_win, { buffer = buf, nowait = true })
+  vim.keymap.set('n', '<Esc>', close_win, { buffer = buf, nowait = true })
+end
+
+local async_edit_flags = async.wrap(M.edit_flags, 2)
+
+-- Example Usage:
+-- local current_args = "--verbose -o /path/to/output --user=test"
+-- EditFlags(current_args, function(new_args)
+--   print("New arguments are: " .. new_args)
+--   -- Here you would save the new_args to your debug configuration
+-- end)
+
 -- Wrap vim.ui.input to be awaitable
-local awaitable_input = async.wrap(Snacks.input, 2)
+local async_input = async.wrap(Snacks.input, 2)
+
 function M.dbg_args_async(custom_name)
   -- async.run starts the coroutine context
   async.run(function()
-    local executable = awaitable_input({
+    local executable = async_input({
       prompt = 'Enter the path to the executable: ',
       default = '/app/output/tests/core-tests',
       completion = 'file',
@@ -52,10 +125,12 @@ function M.dbg_args_async(custom_name)
       return -- Exit the async function
     end
 
-    local flags = awaitable_input({
-      prompt = 'Flags: ',
-      -- You could add completion for flags here if desired
-    })
+    -- local flags = async_input({
+    --   prompt = 'Flags: ',
+    --   -- You could add completion for flags here if desired
+    -- })
+
+    local flags = async_edit_flags("")
 
     -- The user pressed <Esc> on the second prompt
     if flags == nil then -- Note: empty string for flags is a valid input
@@ -63,7 +138,7 @@ function M.dbg_args_async(custom_name)
         return
     end
 
-    local name = awaitable_input({
+    local name = async_input({
       prompt = 'Name (optional): ',
     })
 
