@@ -97,23 +97,15 @@ function M.edit_flags(initial_flags, callback)
   vim.keymap.set('n', 'q', close_win, { buffer = buf, nowait = true })
   vim.keymap.set('n', '<Esc>', close_win, { buffer = buf, nowait = true })
 end
-
-local async_edit_flags = async.wrap(M.edit_flags, 2)
-
--- Example Usage:
--- local current_args = "--verbose -o /path/to/output --user=test"
--- EditFlags(current_args, function(new_args)
---   print("New arguments are: " .. new_args)
---   -- Here you would save the new_args to your debug configuration
--- end)
+M.async_edit_flags = async.wrap(M.edit_flags, 2)
 
 -- Wrap vim.ui.input to be awaitable
-local async_input = async.wrap(Snacks.input, 2)
+M.async_snacks_input = async.wrap(Snacks.input, 2)
 
 function M.dbg_args_async(custom_name)
   -- async.run starts the coroutine context
   async.run(function()
-    local executable = async_input({
+    local executable = M.async_snacks_input({
       prompt = 'Enter the path to the executable: ',
       default = '/app/output/tests/core-tests',
       completion = 'file',
@@ -125,12 +117,7 @@ function M.dbg_args_async(custom_name)
       return -- Exit the async function
     end
 
-    -- local flags = async_input({
-    --   prompt = 'Flags: ',
-    --   -- You could add completion for flags here if desired
-    -- })
-
-    local flags = async_edit_flags("")
+    local flags = M.async_edit_flags("")
 
     -- The user pressed <Esc> on the second prompt
     if flags == nil then -- Note: empty string for flags is a valid input
@@ -138,7 +125,7 @@ function M.dbg_args_async(custom_name)
         return
     end
 
-    local name = async_input({
+    local name = M.async_snacks_input({
       prompt = 'Name (optional): ',
     })
 
