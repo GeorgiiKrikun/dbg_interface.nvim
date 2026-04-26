@@ -1,75 +1,93 @@
 local DebugEntry = require('dbg_interface.DebugEntry')
-local Class = require('pl.class')
-local Path = require('pl.path')
-local List = require('pl.List')
-local tablex = require('pl.tablex')
-local DebugHistory = Class()
 
+-- Define the class table and its metatable operations
+local DebugHistory = {}
+DebugHistory.__index = DebugHistory
+
+-- Metamethod for tostring
+function DebugHistory:__tostring()
+  local strs = {}
+  for i, entry in ipairs(self.entries) do
+    table.insert(strs, tostring(i) .. ": " .. tostring(entry))
+  end
+  return table.concat(strs, "\n")
+end
+
+-- Configuration constants
 DebugHistory.history_storage = vim.fn.stdpath('data') .. '/debug_configs_history.json'
 
-function DebugHistory.load_history()
-    local file = io.open(DebugHistory.history_storage, "r")
-    if file then
-        local content = file:read("*a")
-        file:close()
-        local ok, data = pcall(vim.json.decode, content)
-        if ok and type(data) == "table" then
-          entries = tablex.map(DebugEntry.from_table, data)
-          return DebugHistory.new{init = entries}
-        end
+--- Constructor
+function DebugHistory.new(kwargs)
+  local self = setmetatable({}, DebugHistory)
+  self.entries = (kwargs and kwargs.init) or {}
+  return self
+end
+
+--- Helper function to find the index of an entry
+local function find_index(list, target_entry)
+  for i, entry in ipairs(list) do
+    if entry == target_entry then
+      return i
     end
-    return DebugHistory.new{}
+  end
+  return nil
+end
+
+function DebugHistory.load_history()
+  local file = io.open(DebugHistory.history_storage, "r")
+  if file then
+    local content = file:read("*a")
+    file:close()
+    
+    local ok, data = pcall(vim.json.decode, content)
+    if ok and type(data) == "table" then
+      local entries = {}
+      for _, item in ipairs(data) do
+        table.insert(entries, DebugEntry.from_table(item))
+      end
+      return DebugHistory.new{init = entries}
+    end
+  end
+  return DebugHistory.new{}
 end
 
 function DebugHistory:save_history()
-    local file = io.open(self.history_storage, "w")
-    if file then
-        file:write(vim.json.encode(self.entries))
-        file:close()
-    end
-end
-
-function DebugHistory:_init(kwargs)
-  if kwargs and kwargs.init then 
-    self.entries = List(kwargs.init)
-  else
-    self.entries = List()
+  local file = io.open(self.history_storage, "w")
+  if file then
+    file:write(vim.json.encode(self.entries))
+    file:close()
   end
 end
 
 function DebugHistory:contains(entry)
-  if self.entries:contains(entry) then
-    return true
-  else
-    return false
-  end
+  return find_index(self.entries, entry) ~= nil
 end
 
 function DebugHistory:add_entry(entry)
-  if not self:contains(entry) then
-    self.entries:append(entry)
+  local idx = find_index(self.entries, entry)
+  if not idx then
+    table.insert(self.entries, entry)
   else
-    local i  = tablex.find(self.entries, entry)
-    self:upd_ts(self.entries[i])
+    self:upd_ts(self.entries[idx])
   end
 end
 
 function DebugHistory:remove_entry(entry)
-  local idx = self.entries:index(entry)
+  local idx = find_index(self.entries, entry)
   if idx then
-    self.entries:remove(idx)
+    table.remove(self.entries, idx)
   else
-    vim.notify("Entry " .. entry .. " not found in history, cannot remove", vim.log.levels.WARN)
+    vim.notify("Entry " .. tostring(entry) .. " not found in history, cannot remove", vim.log.levels.WARN)
   end
 end
 
 function DebugHistory:upd_ts(entry)
-  local idx = self.entries:index(entry)
-  vim.notify("Updating timestamp for entry: " .. entry, vim.log.levels.DEBUG)
+  local idx = find_index(self.entries, entry)
+  vim.notify("Updating timestamp for entry: " .. tostring(entry), vim.log.levels.DEBUG)
   if idx then
     self.entries[idx].ts = entry.ts
   else
-    vim.notify("Entry " .. entry .. " not found in history, cannot update timestamp", vim.log.levels.WARN)
+    vim.notify("Entry " .. tostring(entry) .. " not found in history, cannot update timestamp", vim.log.levels.WARN)
   end
 end
 
@@ -77,23 +95,23 @@ function DebugHistory:size()
   return #self.entries
 end
 
-function DebugHistory.new(kwargs)
-  local instance = DebugHistory(kwargs)
-  return instance
-end
-
 function DebugHistory:sorted_recent_by_type(type)
-  local filtered_entries = self.entries:filter(function(entry) return entry.type == type end)
-  local sorted_entries = filtered_entries:sort():reverse()
-  return DebugHistory.new{init = sorted_entries}
-end
-
-function DebugHistory:__tostring()
-  local strs = {}
-  for i, entry in ipairs(self.entries) do
-    table.insert(strs, tostring(i) .. ": " .. tostring(entry))
+  local filtered_entries = {}
+  
+  -- Filter
+  for _, entry in ipairs(self.entries) do
+    if entry.type == type then
+      table.insert(filtered_entries, entry)
+    end
   end
-  return table.concat(strs, "\n")
+  
+  -- Sort and reverse (assuming DebugEntry implements the __lt metamethod)
+  -- By checking `b < a`, we achieve a reverse (descending) sort natively.
+  table.sort(filtered_entries, function(a, b)
+    return b < a 
+  end)
+  
+  return DebugHistory.new{init = filtered_entries}
 end
 
 -- Test stuff
@@ -132,12 +150,6 @@ function DebugHistory.test()
   for i, entry in ipairs(loaded_dh.entries) do
     assert(entry == dh.entries[i], "Loaded entry " .. entry .. "should match original entry " .. dh.entries[i])
   end
-end
-
-function DebugHistory.reload()
-	local current_file, _ = Path.splitext(Path.basename(debug.getinfo(1, "S").source:sub(2)))
-	package.loaded[current_file] = nil
-	return require(current_file)
 end
 
 return DebugHistory
