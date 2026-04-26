@@ -3,7 +3,6 @@ local M = {}
 local dap = require('dap')
 local DebugEntry = require('dbg_interface.DebugEntry')
 local DebugHistory = require('dbg_interface.DebugHistory')
-local Path = require('pl.path')
 local tablex = require('pl.tablex')
 local async = require('plenary.async')
 local Snacks = require('snacks')
@@ -33,7 +32,7 @@ function M.get_config(custom_name, executable, args)
   vim.notify("Found configuration for type " .. vim.inspect(custom_name) .. ": " .. vim.inspect(config), vim.log.levels.DEBUG)
   config.program = executable
   config.args = M.parse_args(args)
-
+    
   return config, opts
 end
 
@@ -213,7 +212,7 @@ function M.get_cli_cmd(custom_name)
 end
 
 function M.print_configs()
-  print("Current DAP Configurations:")
+  print("Current DAP Configurations3:")
   print(vim.inspect(configs))
 end
 
