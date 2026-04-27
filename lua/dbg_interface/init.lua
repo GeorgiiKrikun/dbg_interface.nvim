@@ -210,6 +210,11 @@ function M.get_cli_cmd(custom_name)
   })
 end
 
+function M.edit_debug_history()
+    local path = M.debug_history.history_storage
+    vim.cmd.edit(path)
+end
+
 function M.print_configs()
   print("Current DAP Configurations3:")
   print(vim.inspect(configs))
