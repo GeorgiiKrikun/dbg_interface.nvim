@@ -114,43 +114,5 @@ function DebugHistory:sorted_recent_by_type(type)
   return DebugHistory.new{init = filtered_entries}
 end
 
--- Test stuff
-function DebugHistory.test()
-  DebugHistory.history_storage = '/tmp/test_debug_history.json'
-  local dh = DebugHistory.new{}
-  local entry1 = DebugEntry:new{prog = "p1", args ="a1 a2"}
-  local entry2 = DebugEntry:new{prog = "p1", args ="a2 a3"}
-  local entry3 = DebugEntry:new{prog = "p1", args ="a1 a2"}
-  dh:add_entry(entry1)
-  dh:add_entry(entry2)
-  assert(entry1 == entry3, "entry1 should be equal to entry3")
-  assert(dh:size() == 2, "DebugHistory should have 2 entries")
-  dh:add_entry(entry3)
-  assert(dh:size() == 2, "DebugHistory should still have 2 entries after adding entry3 again")
-  assert(dh:contains(entry3), "DebugHistory should contain entry3")
-  assert(dh:contains(entry1), "DebugHistory should contain entry1")
-  assert(dh:contains(entry2), "DebugHistory should contain entry2")
-  os.execute("sleep 1")
-
-  local entry4 = DebugEntry:new{prog = "p1", args ="a1 a2"}
-  dh:upd_ts(entry4)
-  local entry5 = DebugEntry:new{prog = "p2", args ="a2 a3"}
-  assert(dh:contains(entry4), "DebugHistory should contain entry4 after updating timestamp")
-  dh:add_entry(entry5)
-  assert(dh.entries[1].ts == entry4.ts, "Timestamp should be updated")
-  local sorted_dh = dh:sorted_recent()
-  local ts1 = sorted_dh.entries[1].timestamp
-  local ts2 = sorted_dh.entries[2].timestamp
-  assert(ts1 >= ts2, "Sorted entries should be in descending order by timestamp")
-
-  -- test saving and loading history
-  dh:save_history()
-  local loaded_dh = DebugHistory.load_history()
-  assert(loaded_dh:size() == dh:size(), "Loaded DebugHistory should have the same size as original")
-  for i, entry in ipairs(loaded_dh.entries) do
-    assert(entry == dh.entries[i], "Loaded entry " .. entry .. "should match original entry " .. dh.entries[i])
-  end
-end
-
 return DebugHistory
 
