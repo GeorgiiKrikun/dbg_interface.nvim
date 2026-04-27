@@ -3,7 +3,6 @@ local M = {}
 local dap = require('dap')
 local DebugEntry = require('dbg_interface.DebugEntry')
 local DebugHistory = require('dbg_interface.DebugHistory')
-local tablex = require('pl.tablex')
 local async = require('plenary.async')
 local Snacks = require('snacks')
 
@@ -21,8 +20,8 @@ end
 
 function M.get_config(custom_name, executable, args) 
   vim.notify("Getting configuration for type: " .. tostring(custom_name), vim.log.levels.DEBUG)
-  local config = tablex.deepcopy(configs[custom_name].config)
-  local opts = tablex.deepcopy(configs[custom_name].opts)
+  local config = vim.deepcopy(configs[custom_name].config)
+  local opts = vim.deepcopy(configs[custom_name].opts)
 
   if not config then
     vim.notify("No configuration found for type: " .. tostring(custom_name), vim.log.levels.ERROR)
