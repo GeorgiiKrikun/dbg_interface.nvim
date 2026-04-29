@@ -1,0 +1,18 @@
+# default recipe
+default:
+    @just --list
+
+# Build all C++ targets in Debug mode
+build-cpp:
+    @echo "Configuring C++ targets..."
+    cmake -S cpp -B cpp/build -DCMAKE_BUILD_TYPE=Debug
+    @echo "Building C++ targets..."
+    cd cpp/build && make
+
+# Clean the C++ build directory
+clean-cpp:
+    @echo "Cleaning C++ build artifacts..."
+    rm -rf cpp/build
+
+# Clean and re-build C++ targets
+rebuild-cpp: clean-cpp build-cpp
