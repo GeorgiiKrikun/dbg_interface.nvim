@@ -3,6 +3,9 @@ local M = {}
 local dap = require('dap')
 local DebugEntry = require('dbg_interface.DebugEntry')
 local DebugHistory = require('dbg_interface.DebugHistory')
+local DebugTarget = require('dbg_interface.DebugTarget')
+local DebugArguments = require('dbg_interface.DebugArguments')
+local Enum = require('dbg_interface.Enum')
 local async = require('plenary.async')
 local Snacks = require('snacks')
 
