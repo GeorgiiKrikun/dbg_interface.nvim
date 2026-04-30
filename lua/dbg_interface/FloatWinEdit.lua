@@ -4,8 +4,10 @@ FloatWin.__index = FloatWin
 function FloatWin:_init(kwargs)
     self.win = nil
 
-    local width = kwargs.width or math.floor(vim.o.columns * 0.6)
-    local height = kwargs.height or math.floor(vim.o.lines * 0.5)
+    local width_ratio = kwargs.width or 0.6
+    local height_ratio = kwargs.height or 0.5
+    local width = math.floor(vim.o.columns * width_ratio)
+    local height = math.floor(vim.o.lines * height_ratio)
     local row = kwargs.rows or math.floor((vim.o.lines - height) / 2)
     local col = kwargs.colse or math.floor((vim.o.columns - width) / 2)
 
