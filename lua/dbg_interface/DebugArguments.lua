@@ -2,8 +2,9 @@ local DebugArguments = {}
 DebugArguments.__index = DebugArguments
 
 function DebugArguments:_init(kwargs)
-    self.args = kwargs.args
-    self.alias = kwargs.alias or DebugArguments.concat_list(kwargs.args)
+    self.args = kwargs.args or {}
+    self:force_args_to_string()
+    self.alias = kwargs.alias or table.concat(kwargs.args, " ")
 end
 
 -- 2. The Constructor
@@ -23,27 +24,18 @@ function DebugArguments.from_table(tbl)
     }
 end
 
-function DebugArguments.concat_list(list) 
-    local out = ""
-    for i = 1, #args do
-        out = out .. tostring(args[i])
-        if i ~= #args then
-            out = out .. " "
-        end
+function DebugArguments:force_args_to_string()
+    for i,v in ipairs(self.args) do
+        self.args[i] = tostring(v)
     end
 end
 
-
-function DebugArguments:__lt(other)
-    return self.timestamp < other.timestamp
-end
-
 function DebugArguments:__eq(other)
-    return self.prog == other.prog and self.args == other.args and self.type == other.type
+    return self.args == other.args and self.alias == other.alias
 end
 
 function DebugArguments:__tostring()
-    return "DebugArguments(name = " .. self.name .. "; type = " .. self.type .. "; prog=" .. self.prog .. "; args=" .. self.args .. ")"
+    return self.alias
 end
 
 function DebugArguments.__concat(op1, op2)
@@ -58,6 +50,4 @@ function DebugArguments:cmd()
     return vim.trim(self.prog .. " " .. self.args)
 end
 
-
 return DebugArguments
-
