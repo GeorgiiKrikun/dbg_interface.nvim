@@ -13,31 +13,37 @@ T['DebugTarget'] = MiniTest.new_set()
 T['DebugTarget']['init_py'] = function()
     local target = DebugTarget:new({
         path = vim.fs.abspath("./dbg_test_execs/python/target1_loops.py"),
-        alias = "custom_debug_target"
+        alias = "custom_debug_target",
+        debug_type = "python"
     })
     MiniTest.expect.equality(target.relpath, "dbg_test_execs/python/target1_loops.py")
     MiniTest.expect.equality(target.alias, "custom_debug_target")
-    MiniTest.expect.equality(target.type, Enum.executable_type.PYTHON)
+    MiniTest.expect.equality(target.executable_type, Enum.executable_type.PYTHON)
+    MiniTest.expect.equality(target.debug_type, "python")
 end
 
 
 T['DebugTarget']['init_py_wo_alias'] = function()
     local target = DebugTarget:new({
         path = vim.fs.abspath("./dbg_test_execs/python/target1_loops.py"),
+        debug_type = "python"
     })
     MiniTest.expect.equality(target.relpath, "dbg_test_execs/python/target1_loops.py")
     MiniTest.expect.equality(target.alias, "target1_loops.py")
-    MiniTest.expect.equality(target.type, Enum.executable_type.PYTHON)
+    MiniTest.expect.equality(target.executable_type, Enum.executable_type.PYTHON)
+    MiniTest.expect.equality(target.debug_type, "python")
 end
 
 T['DebugTarget']['init_bin'] = function() 
     local target = DebugTarget:new({
         path = vim.fs.abspath("dbg_test_execs/cpp/build/target1_pointers"),
-        alias = "pointers"
+        alias = "pointers",
+        debug_type = "cpp"
     })
     MiniTest.expect.equality(target.relpath, "dbg_test_execs/cpp/build/target1_pointers")
     MiniTest.expect.equality(target.alias, "pointers")
-    MiniTest.expect.equality(target.type, Enum.executable_type.BINARY)
+    MiniTest.expect.equality(target.executable_type, Enum.executable_type.BINARY)
+    MiniTest.expect.equality(target.debug_type, "cpp")
 end
 
 return T

@@ -21,7 +21,7 @@ end
 
 function DebugTarget:_init(kwargs)
     kwargs = kwargs or {}
-    local path = kwargs.path or kwargs[1]
+    local path = kwargs.path
 
     if is_empty(path) then
         error("No path provided")
@@ -34,12 +34,17 @@ function DebugTarget:_init(kwargs)
         error("Debug target outside of the repository")
     end
 
+    local debug_type = kwargs.debug_type
+    if is_empty(debug_type) then
+        error("Debug type field is missing for the given executable")
+    end
+
     self.relpath = relpath
     self.alias = kwargs.alias or vim.fs.basename(relpath)
-    self.type = self.determine_executable_type(path)
+    self.executable_type = self.determine_executable_type(path)
+    self.debug_type = debug_type
 end
 
--- 2. The Constructor
 function DebugTarget:new(kwargs)
     local instance = setmetatable({}, self)
     instance:_init(kwargs)
