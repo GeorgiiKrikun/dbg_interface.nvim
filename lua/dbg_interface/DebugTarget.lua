@@ -51,4 +51,22 @@ function DebugTarget:new(kwargs)
     return instance
 end
 
+function DebugTarget:to_json()
+    local raw_json = vim.json.encode(self)
+    if vim.fn.executable("jq") == 1 then
+        return vim.fn.system("jq .", raw_json)
+    end
+
+    return raw_json
+end
+
+
+function DebugTarget:open_float_with_json()
+    local json = self:to_json()
+    local lines = vim.split(json, "\n")
+
+
+
+end
+
 return DebugTarget
