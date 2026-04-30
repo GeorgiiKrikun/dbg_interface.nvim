@@ -7,12 +7,16 @@ local function is_empty(path)
     return not path or path == ""
 end
 
-function determine_executable_type(path) 
+function DebugTarget.determine_executable_type(path) 
     if string.sub(path, #path - 2, #path) == ".py" then
         return Enum.executable_type.PYTHON
     else 
         return Enum.executable_type.BINARY
     end
+end
+
+function DebugTarget:exists()
+    return vim.uv.fs_stat(self.relpath)
 end
 
 function DebugTarget:_init(kwargs)
@@ -32,7 +36,7 @@ function DebugTarget:_init(kwargs)
 
     self.relpath = relpath
     self.alias = kwargs.alias or vim.fs.basename(relpath)
-    self.type = determine_executable_type(path)
+    self.type = self.determine_executable_type(path)
 end
 
 -- 2. The Constructor
@@ -41,6 +45,5 @@ function DebugTarget:new(kwargs)
     instance:_init(kwargs)
     return instance
 end
-
 
 return DebugTarget
