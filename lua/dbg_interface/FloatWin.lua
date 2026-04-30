@@ -9,7 +9,11 @@ FloatWin.async_open_float_for_edit = async.wrap(function(target_json, ftype, kwa
         cb(data)
     end
     local f = float_win:new(kwargs)
-    f:open(target_json, ftype)
+    -- This schedule here is to schedule the UI job only in the main thread. 
+    -- Gemini says that just calling `f:open(target_json, ftype)` is a ticking time bomb since it can get executed from another thread
+    vim.schedule(function()
+        f:open(target_json, ftype)
+    end)
 end, 4)
 
 function FloatWin:_init(kwargs)
