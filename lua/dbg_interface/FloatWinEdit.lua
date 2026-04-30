@@ -1,33 +1,74 @@
-local M = {}
+local FloatWin = {}
+FloatWin.__index = FloatWin
 
-M.close_win = function (win)
-    if vim.api.nvim_win_is_valid(win) then
-        vim.api.nvim_win_close(win, true)
+function FloatWin:_init(kwargs)
+    self.win = nil
+
+    local width = kwargs.width or math.floor(vim.o.columns * 0.6)
+    local height = kwargs.height or math.floor(vim.o.lines * 0.5)
+    local row = kwargs.rows or math.floor((vim.o.lines - height) / 2)
+    local col = kwargs.colse or math.floor((vim.o.columns - width) / 2)
+
+    self.whrc = {
+        w = width,
+        h = height,
+        r = row,
+        c = col,
+    }
+
+    self.bufnr = nil
+    self.win = nil
+end
+
+function FloatWin:new(kwargs)
+    local instance = setmetatable({}, self)
+    instance:_init(kwargs)
+    return instance
+end
+
+function FloatWin:close()
+    if vim.api.nvim_win_is_valid(self.win) then
+        vim.api.nvim_win_close(self.win, true)
     end
 end
 
-M.open_float = function (kwargs)
-    local text = kwargs.text
-    local ftype = kwargs.ftype
-    local callback = kwargs.callback
+function FloatWin:open(text, ftype)
 
-    local width = math.floor(vim.o.columns * 0.6)
-    local height = math.floor(vim.o.lines * 0.5)
-    local row = math.floor((vim.o.lines - height) / 2)
-    local col = math.floor((vim.o.columns - width) / 2)
+    self.bufnr = vim.api.nvim_create_buf(false, true)
+    if ftype then
+        vim.bo[self.bufnr].filetype = ftype
+    end
 
-    local win = vim.api.nvim_open_win(bufnr , true, {
+    self.win = vim.api.nvim_open_win(self.bufnr , true, {
         relative = 'editor',
-        width = width,
-        height = height,
-        row = row,
-        col = col,
+        width = self.whrc.w,
+        height = self.whrc.h,
+        row = self.whrc.r,
+        col = self.whrc.c,
         style = 'minimal',
         border = 'rounded',
     })
+    vim.wo[self.win].winhl = 'Normal:FloatNormal' -- Optional: custom highlighting
 
-    vim.wo[win].winhl = 'Normal:FloatNormal' -- Optional: custom highlighting
-    vim.keymap.set('n', 'q', M.close_win, { buffer = bufnr, nowait = true })
-    vim.keymap.set('n', '<Esc>', M.close_win, { buffer = bufnr, nowait = true })
+    local lines = vim.split(text, "\n")
+    vim.api.nvim_buf_set_lines(self.bufnr, 0, -1, false, lines)
+
+    self:_set_close_hotkey()
+end
+
+function FloatWin:_set_close_hotkey()
+    vim.keymap.set(
+        'n',
+        'q',
+        function ()
+            self:close() 
+        end,
+        {
+            buffer = self.bufnr,
+            nowait = true
+        }
+    )
 
 end
+
+return FloatWin
