@@ -18,6 +18,7 @@ function FloatWin:_init(kwargs)
 
     self.bufnr = nil
     self.win = nil
+    self.callback = kwargs.callback
 end
 
 function FloatWin:new(kwargs)
@@ -33,7 +34,6 @@ function FloatWin:close()
 end
 
 function FloatWin:open(text, ftype)
-
     self.bufnr = vim.api.nvim_create_buf(false, true)
     if ftype then
         vim.bo[self.bufnr].filetype = ftype
@@ -54,6 +54,7 @@ function FloatWin:open(text, ftype)
     vim.api.nvim_buf_set_lines(self.bufnr, 0, -1, false, lines)
 
     self:_set_close_hotkey()
+    self:_set_return_hotkey()
 end
 
 function FloatWin:_set_close_hotkey()
@@ -61,13 +62,27 @@ function FloatWin:_set_close_hotkey()
         'n',
         'q',
         function ()
-            self:close() 
+            self:close()
         end,
         {
             buffer = self.bufnr,
             nowait = true
         }
     )
+
+end
+
+function FloatWin:_set_return_hotkey()
+    vim.keymap.set('n', '<CR>', function()
+        local final_out = vim.api.nvim_buf_get_lines(self.bufnr, 0, -1, false)
+        self:close()
+        if self.callback then
+            self.callback(final_out)
+        end
+    end, {
+        buffer = self.bufnr,
+        nowait = true
+    })
 
 end
 
