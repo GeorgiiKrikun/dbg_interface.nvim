@@ -1,5 +1,16 @@
 local FloatWin = {}
 FloatWin.__index = FloatWin
+local async = require("plenary.async")
+
+FloatWin.async_open_float_for_edit = async.wrap(function(target_json, ftype, kwargs, cb)
+    local float_win = require("dbg_interface.FloatWin")
+    kwargs = kwargs or {}
+    kwargs.callback = function(data)
+        cb(data)
+    end
+    local f = float_win:new(kwargs)
+    f:open(target_json, ftype)
+end, 4)
 
 function FloatWin:_init(kwargs)
     self.win = nil
@@ -33,6 +44,7 @@ function FloatWin:close()
     if vim.api.nvim_win_is_valid(self.win) then
         vim.api.nvim_win_close(self.win, true)
     end
+
 end
 
 function FloatWin:open(text, ftype)
@@ -50,7 +62,7 @@ function FloatWin:open(text, ftype)
         style = 'minimal',
         border = 'rounded',
     })
-    vim.wo[self.win].winhl = 'Normal:FloatNormal' -- Optional: custom highlighting
+    vim.wo[self.win].winhl = 'Normal:FloatNormal'
 
     local lines = vim.split(text, "\n")
     vim.api.nvim_buf_set_lines(self.bufnr, 0, -1, false, lines)
@@ -65,6 +77,10 @@ function FloatWin:_set_close_hotkey()
         'q',
         function ()
             self:close()
+            if self.callback then
+                self.callback(nil) 
+                self.callback = nil 
+            end
         end,
         {
             buffer = self.bufnr,
@@ -77,10 +93,11 @@ end
 function FloatWin:_set_return_hotkey()
     vim.keymap.set('n', '<CR>', function()
         local final_out = vim.api.nvim_buf_get_lines(self.bufnr, 0, -1, false)
-        self:close()
         if self.callback then
             self.callback(final_out)
+            self.callback = nil
         end
+        self:close()
     end, {
         buffer = self.bufnr,
         nowait = true
