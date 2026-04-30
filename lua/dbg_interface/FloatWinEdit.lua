@@ -8,8 +8,8 @@ function FloatWin:_init(kwargs)
     local height_ratio = kwargs.height or 0.5
     local width = math.floor(vim.o.columns * width_ratio)
     local height = math.floor(vim.o.lines * height_ratio)
-    local row = kwargs.rows or math.floor((vim.o.lines - height) / 2)
-    local col = kwargs.colse or math.floor((vim.o.columns - width) / 2)
+    local row = math.floor((vim.o.lines - height) / 2)
+    local col = math.floor((vim.o.columns - width) / 2)
 
     self.whrc = {
         w = width,
