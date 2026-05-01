@@ -1,4 +1,4 @@
-local DebugArguments = require('dbg_interface.DebugArguments')
+local DebugArguments = require('dbg_interface.DbgArguments')
 local MiniTest = require('mini.test')
 
 -- 1. Initialize the test set

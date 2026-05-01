@@ -1,4 +1,5 @@
-local DebugTarget = require('dbg_interface.DebugTarget')
+local DebugTarget = require('dbg_interface.DbgTarget')
+local DebugArguments = require('dbg_interface.DbgArguments')
 local Enum = require('dbg_interface.Enum')
 local MiniTest = require('mini.test')
 
@@ -44,6 +45,37 @@ T['DebugTarget']['init_bin'] = function()
     MiniTest.expect.equality(target.alias, "pointers")
     MiniTest.expect.equality(target.executable_type, Enum.executable_type.BINARY)
     MiniTest.expect.equality(target.debug_type, "cpp")
+end
+
+T['DebugTarget']['args'] = function() 
+    local target = DebugTarget:new({
+        path = vim.fs.abspath("dbg_test_execs/cpp/build/target1_pointers"),
+        alias = "pointers",
+        debug_type = "cpp"
+    })
+
+    local args = DebugArguments:new({
+        args = {"--hello", "world", "-d", "zalupa33"}
+    })
+
+    target:add_arguments(args)
+    MiniTest.expect.equality(#(target.args), 1)
+    MiniTest.expect.equality(target.args[1], args)
+
+    local args2 = DebugArguments:new({
+        args = {"Double check"}
+    })
+
+    target:add_arguments(args2)
+    MiniTest.expect.equality(#(target.args), 2)
+    MiniTest.expect.equality(target.args[2], args2)
+
+    target:remove_arguments(args)
+    MiniTest.expect.equality(#(target.args), 1)
+    MiniTest.expect.equality(target.args[1], args2)
+
+    target:remove_arguments(args2)
+    MiniTest.expect.equality(#(target.args), 0)
 end
 
 return T

@@ -43,6 +43,7 @@ function DebugTarget:_init(kwargs)
     self.alias = kwargs.alias or vim.fs.basename(relpath)
     self.executable_type = self.determine_executable_type(path)
     self.debug_type = debug_type
+    self.args = {}
 end
 
 function DebugTarget:new(kwargs)
@@ -54,19 +55,26 @@ end
 function DebugTarget:to_json()
     local raw_json = vim.json.encode(self)
     if vim.fn.executable("jq") == 1 then
+        vim.notify("No jq found on the system; JSON can't be prettified", vim.log.levels.WARN)
         return vim.fn.system("jq .", raw_json)
     end
 
     return raw_json
 end
 
+function DebugTarget:add_arguments(args)
+    self.args[#self.args + 1] = args
+end
 
-function DebugTarget:open_float_with_json()
-    local json = self:to_json()
-    local lines = vim.split(json, "\n")
-
-
-
+function DebugTarget:remove_arguments(args)
+    local idx = nil
+    for i, a in ipairs(self.args) do
+        if a == args then
+            idx = i
+            break
+        end
+    end
+    table.remove(self.args, idx)
 end
 
 return DebugTarget

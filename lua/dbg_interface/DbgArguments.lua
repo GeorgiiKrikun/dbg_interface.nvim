@@ -3,8 +3,12 @@ DebugArguments.__index = DebugArguments
 
 function DebugArguments:_init(kwargs)
     self.args = kwargs.args or {}
-    self:force_args_to_string()
-    self.alias = kwargs.alias or table.concat(kwargs.args, " ")
+    if #self.args > 0 then 
+        self:force_args_to_string()
+        self.alias = kwargs.alias or table.concat(kwargs.args, " ")
+    else
+        self.alias = "no args"
+    end
 end
 
 -- 2. The Constructor
