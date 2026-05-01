@@ -82,7 +82,8 @@ function FloatWin:open(text, ftype)
 
     -- 4. Explicitly enable folding on the floating window
     vim.wo[self.win].foldenable = true
-    
+    -- Keep all folds OPEN by default
+    vim.wo[self.win].foldlevel = 99   
     -- If you use Treesitter for folding (Recommended for modern Neovim):
     vim.wo[self.win].foldmethod = 'expr'
     vim.wo[self.win].foldexpr = 'v:lua.vim.treesitter.foldexpr()'
