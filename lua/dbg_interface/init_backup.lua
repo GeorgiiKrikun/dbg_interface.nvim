@@ -227,61 +227,7 @@ function M.setup(user_opts)
   configs = vim.tbl_deep_extend('force', configs, user_opts or {})
 end
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function M.edit_stuff(staff)
-    local FloatWin = require "dbg_interface.FloatWin"
-    local utils = require "dbg_interface.utils"
-    print("running stuff")
-    async.run(
-        function()
-            local json = vim.json.encode(staff)
-            json = utils.beautify_json(json)
-            local edited_result = FloatWin.async_open_float_for_edit(json, "json")
-            print(edited_result)
-        end, 
-        function(err)
-            if err then
-                vim.notify("An error occurred: " .. tostring(err), vim.log.levels.ERROR)
-            end
-        end
-    )
-end
-
-
-
 return M
+
 
 

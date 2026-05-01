@@ -1,5 +1,5 @@
 local Enum = require('dbg_interface.Enum')
-
+local utils = require('dbg_interface.utils')
 local DebugTarget = {}
 DebugTarget.__index = DebugTarget
 
@@ -34,15 +34,10 @@ function DebugTarget:_init(kwargs)
         error("Debug target outside of the repository")
     end
 
-    local debug_type = kwargs.debug_type
-    if is_empty(debug_type) then
-        error("Debug type field is missing for the given executable")
-    end
-
     self.relpath = relpath
     self.alias = kwargs.alias or vim.fs.basename(relpath)
     self.executable_type = self.determine_executable_type(path)
-    self.debug_type = debug_type
+    -- self.debug_type = debug_type
     self.args = {}
 end
 
@@ -54,27 +49,15 @@ end
 
 function DebugTarget:to_json()
     local raw_json = vim.json.encode(self)
-    if vim.fn.executable("jq") == 1 then
-        vim.notify("No jq found on the system; JSON can't be prettified", vim.log.levels.WARN)
-        return vim.fn.system("jq .", raw_json)
-    end
-
-    return raw_json
+    return utils.beautify_json(raw_json)
 end
 
 function DebugTarget:add_arguments(args)
-    self.args[#self.args + 1] = args
+    utils.append_to_list(self.args, args)
 end
 
 function DebugTarget:remove_arguments(args)
-    local idx = nil
-    for i, a in ipairs(self.args) do
-        if a == args then
-            idx = i
-            break
-        end
-    end
-    table.remove(self.args, idx)
+    return utils.remove_from_list(self.args, args)
 end
 
 return DebugTarget

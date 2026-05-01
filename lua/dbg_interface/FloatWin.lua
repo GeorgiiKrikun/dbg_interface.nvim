@@ -2,7 +2,12 @@ local FloatWin = {}
 FloatWin.__index = FloatWin
 local async = require("plenary.async")
 
-FloatWin.async_open_float_for_edit = async.wrap(function(target_json, ftype, kwargs, cb)
+FloatWin.async_open_float_for_edit = async.wrap(function(
+    target_json,
+    ftype,
+    kwargs,
+    cb
+)
     local float_win = require("dbg_interface.FloatWin")
     kwargs = kwargs or {}
     kwargs.callback = function(data)

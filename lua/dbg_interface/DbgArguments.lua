@@ -3,7 +3,7 @@ DebugArguments.__index = DebugArguments
 
 function DebugArguments:_init(kwargs)
     self.args = kwargs.args or {}
-    if #self.args > 0 then 
+    if #self.args > 0 then
         self:force_args_to_string()
         self.alias = kwargs.alias or table.concat(kwargs.args, " ")
     else
