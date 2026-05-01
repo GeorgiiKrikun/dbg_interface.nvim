@@ -58,10 +58,12 @@ end
 
 function FloatWin:open(text, ftype)
     self.bufnr = vim.api.nvim_create_buf(false, true)
-    if ftype then
-        vim.bo[self.bufnr].filetype = ftype
-    end
 
+    -- 1. Populate the buffer text first
+    local lines = vim.split(text, "\n")
+    vim.api.nvim_buf_set_lines(self.bufnr, 0, -1, false, lines)
+
+    -- 2. Open the window
     self.win = vim.api.nvim_open_win(self.bufnr , true, {
         relative = 'editor',
         width = self.whrc.w,
@@ -73,8 +75,20 @@ function FloatWin:open(text, ftype)
     })
     vim.wo[self.win].winhl = 'Normal:FloatNormal'
 
-    local lines = vim.split(text, "\n")
-    vim.api.nvim_buf_set_lines(self.bufnr, 0, -1, false, lines)
+    -- 3. Set filetype AFTER the window is created and focused
+    if ftype then
+        vim.bo[self.bufnr].filetype = ftype
+    end
+
+    -- 4. Explicitly enable folding on the floating window
+    vim.wo[self.win].foldenable = true
+    
+    -- If you use Treesitter for folding (Recommended for modern Neovim):
+    vim.wo[self.win].foldmethod = 'expr'
+    vim.wo[self.win].foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+    
+    -- OR, if you don't use Treesitter, uncomment these instead:
+    -- vim.wo[self.win].foldmethod = 'syntax' 
 
     self:_set_close_hotkey()
     self:_set_return_hotkey()
