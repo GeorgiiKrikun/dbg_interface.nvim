@@ -19,13 +19,8 @@ function DebugArguments:new(kwargs)
 end
 
 function DebugArguments.from_table(tbl)
-    return DebugArguments:new{
-        prog = tbl.prog,
-        args = tbl.args,
-        type = tbl.type,
-        name = tbl.name or (tbl.prog .. " " .. tbl.args),
-        timestamp = tbl.timestamp
-    }
+    setmetatable(tbl, DebugArguments)
+    return table
 end
 
 function DebugArguments:force_args_to_string()

@@ -3,8 +3,9 @@ local M = {}
 local DebugTarget = require "dbg_interface.DbgTarget"
 local DebugArguments = require 'dbg_interface.DbgArguments'
 local DebugType = require "dbg_interface.DbgType"
+local DebugHistory = require "dbg_interface.DbgConfig"
 
-M.generate_test_data = function() 
+M.generate_test_data = function()
     local target = DebugTarget:new{
         path = vim.fs.abspath("dbg_test_execs/cpp/build/target1_pointers"),
         alias = "pointers",
@@ -70,8 +71,9 @@ M.generate_test_data = function()
 
     local dbg_type_python = DebugType:new{debug_type = "python"}
     dbg_type_python:add_targets{target2}
-    
-    return dbg_type_cpp, dbg_type_python
+
+    local hist = DebugHistory:new { types = {dbg_type_cpp, dbg_type_python} }
+    return hist
 end
 
 return M

@@ -1,5 +1,7 @@
 local Enum = require('dbg_interface.Enum')
 local utils = require('dbg_interface.utils')
+local DebugArguments = require 'dbg_interface.DbgArguments'
+
 local DebugTarget = {}
 DebugTarget.__index = DebugTarget
 
@@ -17,6 +19,14 @@ end
 
 function DebugTarget:exists()
     return vim.uv.fs_stat(self.relpath)
+end
+
+function DebugTarget.from_table(tbl)
+    setmetatable(tbl, DebugTarget)
+    for i,_ in ipairs(tbl.args) do
+        tbl.args[i] = DebugArguments.from_table(tbl.args[i])
+    end
+    return table
 end
 
 function DebugTarget:_init(kwargs)

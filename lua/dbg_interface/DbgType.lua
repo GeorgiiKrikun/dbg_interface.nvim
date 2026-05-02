@@ -2,6 +2,7 @@ local DbgType = {}
 DbgType.__index = DbgType
 
 local utils = require('dbg_interface.utils')
+local DbgTarget = require 'dbg_interface.DbgTarget'
 
 function DbgType:_init(kwargs)
     kwargs = kwargs or {}
@@ -16,6 +17,14 @@ function DbgType:new(kwargs)
     local instance = setmetatable({}, self)
     instance:_init(kwargs)
     return instance
+end
+
+function DbgType.from_table(tbl)
+    setmetatable(tbl, DbgType)
+    for i,_ in ipairs(tbl.targets) do
+        tbl.targets[i] = DbgTarget.from_table(tbl.targets[i])
+    end
+    return tbl
 end
 
 function DbgType:add_target(target)

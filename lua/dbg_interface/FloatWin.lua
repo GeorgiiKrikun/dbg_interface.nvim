@@ -117,8 +117,10 @@ end
 function FloatWin:_set_return_hotkey()
     vim.keymap.set('n', '<CR>', function()
         local final_out = vim.api.nvim_buf_get_lines(self.bufnr, 0, -1, false)
+        local string_out = table.concat(final_out, "\n")
+
         if self.callback then
-            self.callback(final_out)
+            self.callback(string_out)
             self.callback = nil
         end
         self:close()

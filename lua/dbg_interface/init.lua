@@ -261,16 +261,20 @@ end
 
 
 
-function M.edit_stuff(staff)
+function M.edit_stuff(stuff, datatype, callback)
     local FloatWin = require "dbg_interface.FloatWin"
     local utils = require "dbg_interface.utils"
     print("running stuff")
     async.run(
         function()
-            local json = vim.json.encode(staff)
+            local json = vim.json.encode(stuff)
             json = utils.beautify_json(json)
-            local edited_result = FloatWin.async_open_float_for_edit(json, "json")
-            print(edited_result)
+            local result = FloatWin.async_open_float_for_edit(json, "json")
+            local table_res = datatype.from_table(vim.json.decode(result))
+            
+            if callback then
+                callback(table_res)
+            end
         end, 
         function(err)
             if err then
@@ -283,5 +287,3 @@ end
 
 
 return M
-
-
