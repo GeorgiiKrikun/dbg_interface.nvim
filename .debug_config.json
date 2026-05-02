@@ -1,0 +1,88 @@
+{
+  "types": [
+    {
+      "targets": [
+        {
+          "args": [
+            {
+              "args": [
+                "--hello",
+                "world",
+                "-d",
+                "zalupa33"
+              ],
+              "alias": "--hello world -d zalupa33"
+            },
+            {
+              "args": [
+                "Double check"
+              ],
+              "alias": "Double check"
+            },
+            {
+              "args": [],
+              "alias": "no args"
+            }
+          ],
+          "relpath": "dbg_test_execs/cpp/build/target1_pointers",
+          "alias": "pointers",
+          "executable_type": "BINARY"
+        },
+        {
+          "args": [
+            {
+              "args": [
+                "--iterations",
+                "1000",
+                "-v"
+              ],
+              "alias": "--iterations 1000 -v"
+            },
+            {
+              "args": [
+                "--log-file",
+                "/tmp/test.log"
+              ],
+              "alias": "--log-file /tmp/test.log"
+            }
+          ],
+          "relpath": "dbg_test_execs/cpp/build/target2_classes",
+          "alias": "classes",
+          "executable_type": "BINARY"
+        }
+      ],
+      "debug_type": "cpp"
+    },
+    {
+      "targets": [
+        {
+          "args": [
+            {
+              "args": [
+                "--port",
+                "8080",
+                "--verbose"
+              ],
+              "alias": "--port 8080 --verbose"
+            },
+            {
+              "args": [
+                "--env",
+                "development"
+              ],
+              "alias": "--env development"
+            },
+            {
+              "args": [],
+              "alias": "no args"
+            }
+          ],
+          "relpath": "dbg_test_execs/python/main.py",
+          "alias": "py_backend",
+          "executable_type": "PYTHON"
+        }
+      ],
+      "debug_type": "python"
+    }
+  ]
+}

@@ -11,6 +11,20 @@ local async_snacks_input = async.wrap(Snacks.input, 2)
 local async_snacks_select = async.wrap(Snacks.picker.select, 3)
 
 local configs = {}
+local function read_debug_config() 
+  local file = io.open(DbgConfig.local_storage, "r")
+  if file then
+    local content = file:read("*a")
+    file:close()
+    
+    local ok, data = pcall(vim.json.decode, content)
+    if ok and type(data) == "table" then
+        return DbgConfig.from_table(data)
+    end
+  end
+end
+
+M.local_dbg_config = read_debug_config()
 
 --@param config DbgConfig
 --@return DbgType
@@ -35,6 +49,7 @@ function M.select_type(config, callback)
         end
     )
 end
+M.select_type_async = async.wrap(M.select_type, 2)
 
 --@param config DbgType
 --@return DbgTarget
@@ -59,6 +74,7 @@ function M.select_target(dbg_type, callback)
         end
     )
 end
+M.select_target_async = async.wrap(M.select_target, 2)
 
 function M.select_args(target, callback)
     async.run(
@@ -81,10 +97,12 @@ function M.select_args(target, callback)
         end
     )
 end
+M.select_args_async = async.wrap(M.select_args, 2)
 
 function M.edit_stuff(stuff, datatype, callback)
     local FloatWin = require "dbg_interface.FloatWin"
     local utils = require "dbg_interface.utils"
+    -- NOTE: This is an ugly fix because something attaches methods not to metatable.
     async.run(
         function()
             local json = vim.json.encode(stuff)
@@ -102,6 +120,7 @@ function M.edit_stuff(stuff, datatype, callback)
         end
     )
 end
+M.edit_stuff_async = async.wrap(M.edit_stuff, 3)
 
 function M.setup(user_opts)
   configs = vim.tbl_deep_extend('force', configs, user_opts or {})

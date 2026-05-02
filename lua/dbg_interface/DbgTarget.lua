@@ -26,7 +26,7 @@ function DebugTarget.from_table(tbl)
     for i,_ in ipairs(tbl.args) do
         tbl.args[i] = DebugArguments.from_table(tbl.args[i])
     end
-    return table
+    return tbl
 end
 
 function DebugTarget:_init(kwargs)

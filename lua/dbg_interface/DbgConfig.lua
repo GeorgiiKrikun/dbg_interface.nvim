@@ -4,6 +4,8 @@ local DbgType = require 'dbg_interface.DbgType'
 local DebugConfig = {}
 DebugConfig.__index = DebugConfig
 
+DebugConfig.local_storage = "./.debug_config.json"
+
 function DebugConfig:_init(kwargs)
     self.types = (kwargs and kwargs.types) or {}
 end

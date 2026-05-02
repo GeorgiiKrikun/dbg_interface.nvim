@@ -20,7 +20,7 @@ end
 
 function DebugArguments.from_table(tbl)
     setmetatable(tbl, DebugArguments)
-    return table
+    return tbl
 end
 
 function DebugArguments:force_args_to_string()
