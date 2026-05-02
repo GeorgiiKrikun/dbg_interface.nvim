@@ -47,7 +47,6 @@ function DebugTarget:_init(kwargs)
     self.relpath = relpath
     self.alias = kwargs.alias or vim.fs.basename(relpath)
     self.executable_type = self.determine_executable_type(path)
-    -- self.debug_type = debug_type
     self.args = {}
 end
 

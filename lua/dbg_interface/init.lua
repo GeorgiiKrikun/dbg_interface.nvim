@@ -36,6 +36,52 @@ function M.select_type(config, callback)
     )
 end
 
+--@param config DbgType
+--@return DbgTarget
+function M.select_target(dbg_type, callback)
+    async.run(
+        function()
+            local targets = dbg_type.targets
+            local selected_item = async_snacks_select(targets, {
+                prompt = "Select a debug target:",
+                format_item = function(item)
+                    return item.alias .. " [" .. item.relpath .. "]"
+                end
+            })
+            if callback then
+                callback(selected_item)
+            end
+        end,
+        function(err)
+            if err then
+                vim.notify("An error occurred: " .. tostring(err), vim.log.levels.ERROR)
+            end
+        end
+    )
+end
+
+function M.select_args(target, callback)
+    async.run(
+        function()
+            local args = target.args
+            local selected_item = async_snacks_select(args, {
+                prompt = "Select a debug arguments:",
+                format_item = function(item)
+                    return item.alias
+                end
+            })
+            if callback then
+                callback(selected_item)
+            end
+        end,
+        function(err)
+            if err then
+                vim.notify("An error occurred: " .. tostring(err), vim.log.levels.ERROR)
+            end
+        end
+    )
+end
+
 function M.edit_stuff(stuff, datatype, callback)
     local FloatWin = require "dbg_interface.FloatWin"
     local utils = require "dbg_interface.utils"
