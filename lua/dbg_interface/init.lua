@@ -24,6 +24,15 @@ local function read_debug_config()
   end
 end
 
+M.save_debug_config = function(config, path)
+    local file = io.open(path, "w")
+    if file then
+        local encoded = vim.json.encode(config)
+        file:write(encoded)
+        file:close()
+    end
+end
+
 M.local_dbg_config = read_debug_config()
 
 --@param config DbgConfig
@@ -122,10 +131,34 @@ function M.edit_stuff(stuff, datatype, callback)
 end
 M.edit_stuff_async = async.wrap(M.edit_stuff, 3)
 
+
+function M.edit_type(config, callback)
+    async.run(
+        function()
+            local copied_config = vim.deepcopy(config)
+            local selected_type = M.select_type_async(copied_config)
+            local edited_type = M.edit_stuff_async(selected_type, DbgType)
+            for i, t in ipairs(copied_config.types) do
+                if t == selected_type then
+                    copied_config.types[i] = edited_type
+                    break
+                end
+                vim.notify("Failed to replace the dictionary item", vim.log.levels.ERROR)
+            end
+            if callback then
+                callback(copied_config)
+            end
+        end,
+        function(err)
+            if err then
+                vim.notify("An error occurred: " .. tostring(err), vim.log.levels.ERROR)
+            end
+        end
+    )
+end
+
 function M.setup(user_opts)
   configs = vim.tbl_deep_extend('force', configs, user_opts or {})
 end
-
-
 
 return M
