@@ -171,25 +171,6 @@ function M.edit_stuff(stuff, datatype, callback)
 end
 M.edit_stuff_async = async.wrap(M.edit_stuff, 3)
 
-function M.edit_type(config, callback)
-    async.run(
-        function()
-            local copied_config = vim.deepcopy(config)
-            local selected_type = M.select_type_async(copied_config)
-            local edited_type = M.edit_stuff_async(selected_type, DbgType)
-            utils.replace_in_list(config.types, selected_type, edited_type)
-            if callback then
-                callback(copied_config)
-            end
-        end,
-        function(err)
-            if err then
-                vim.notify("An error occurred: " .. tostring(err), vim.log.levels.ERROR)
-            end
-        end
-    )
-end
-
 function M.remove_type(config, callback)
     async.run(
         function()
@@ -229,6 +210,164 @@ function M.remove_type(config, callback)
     )
 end
 
+function M.remove_args(config, callback)
+    async.run(
+        function()
+            local copied_config = vim.deepcopy(config)
+            local selected_type = M.select_type_async(copied_config)
+            if not selected_type then
+                done(callback, nil)
+                return
+            end
+
+            local selected_target = M.select_target_async(selected_type)
+            if not selected_target then
+                done(callback, nil)
+                return
+            end
+
+            local selected_args = M.select_args_async(selected_target)
+            if not selected_args then
+                done(callback, nil)
+                return
+            end
+
+            if selected_target.args and (#(selected_target.args) == 1) then
+                local result = async_snacks_select(
+                    {"Yes", "No"},
+                    { prompt = "Only single list of arguments left (" .. selected_args.alias .. ") are you sure you want to delete it?" }
+                )
+                if result ~= "Yes" then
+                    done(callback, nil)
+                    return
+                end
+            end
+
+            local idx = utils.find_element_idx(selected_target.args, selected_args)
+            if idx then
+                table.remove(selected_target.args, idx)
+            else
+                vim.notify("Error while removing the type " .. selected_args.alias)
+                done(callback, nil)
+                return
+            end
+            done(callback, copied_config)
+        end,
+        function(err)
+            if err then
+                vim.notify("An error occurred: " .. tostring(err), vim.log.levels.ERROR)
+            end
+        end
+    )
+end
+
+function M.remove_target(config, callback)
+    async.run(
+        function()
+            local copied_config = vim.deepcopy(config)
+            local selected_type = M.select_type_async(copied_config)
+            if not selected_type then
+                done(callback, nil)
+                return
+            end
+
+            local selected_target = M.select_target_async(selected_type)
+            if not selected_target then
+                done(callback, nil)
+                return
+            end
+
+            if selected_type.targets and (#(selected_type.targets) == 1) then
+                local result = async_snacks_select(
+                    {"Yes", "No"},
+                    { prompt = "Only single target left (" .. selected_target.alias .. "[" .. selected_target.relpath .. "]" .. ") are you sure you want to delete it?" }
+                )
+                if result ~= "Yes" then
+                    done(callback, nil)
+                    return
+                end
+            end
+
+            local idx = utils.find_element_idx(selected_type.targets, selected_target)
+            if idx then
+                table.remove(selected_type.targets, idx)
+            else
+                vim.notify("Error while removing the type " .. selected_target.alias .. "[" .. selected_target.relpath .. "]")
+                done(callback, nil)
+                return
+            end
+            done(callback, copied_config)
+        end,
+        function(err)
+            if err then
+                vim.notify("An error occurred: " .. tostring(err), vim.log.levels.ERROR)
+            end
+        end
+    )
+end
+function M.remove_target(config, callback)
+    async.run(
+        function()
+            local copied_config = vim.deepcopy(config)
+            local selected_type = M.select_type_async(copied_config)
+            if not selected_type then
+                done(callback, nil)
+                return
+            end
+
+            local selected_target = M.select_target_async(selected_type)
+            if not selected_target then
+                done(callback, nil)
+                return
+            end
+
+            if selected_type.targets and (#(selected_type.targets) == 1) then
+                local result = async_snacks_select(
+                    {"Yes", "No"},
+                    { prompt = "Only single target left (" .. selected_target.alias .. "[" .. selected_target.relpath .. "]" .. ") are you sure you want to delete it?" }
+                )
+                if result ~= "Yes" then
+                    done(callback, nil)
+                    return
+                end
+            end
+
+            local idx = utils.find_element_idx(selected_type.targets, selected_target)
+            if idx then
+                table.remove(selected_type.targets, idx)
+            else
+                vim.notify("Error while removing the type " .. selected_target.alias .. "[" .. selected_target.relpath .. "]")
+                done(callback, nil)
+                return
+            end
+            done(callback, copied_config)
+        end,
+        function(err)
+            if err then
+                vim.notify("An error occurred: " .. tostring(err), vim.log.levels.ERROR)
+            end
+        end
+    )
+end
+
+function M.edit_type(config, callback)
+    async.run(
+        function()
+            local copied_config = vim.deepcopy(config)
+            local selected_type = M.select_type_async(copied_config)
+            local edited_type = M.edit_stuff_async(selected_type, DbgType)
+            utils.replace_in_list(config.types, selected_type, edited_type)
+            if callback then
+                callback(copied_config)
+            end
+        end,
+        function(err)
+            if err then
+                vim.notify("An error occurred: " .. tostring(err), vim.log.levels.ERROR)
+            end
+        end
+    )
+end
 
 function M.edit_target(config, callback)
     async.run(
