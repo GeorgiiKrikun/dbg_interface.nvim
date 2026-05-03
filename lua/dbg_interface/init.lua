@@ -204,6 +204,27 @@ function M.edit_target(config, callback)
     )
 end
 
+function M.edit_args(config, callback)
+    async.run(
+        function()
+            local copied_config = vim.deepcopy(config)
+            local selected_type = M.select_type_async(copied_config)
+            local selected_target = M.select_target_async(selected_type)
+            local selected_args = M.select_args_async(selected_target)
+            local edited_args = M.edit_stuff_async(selected_args, DbgArguments)
+            utils.replace_in_list(selected_target.args, selected_args, edited_args)
+            if callback then
+                callback(copied_config)
+            end
+        end,
+        function(err)
+            if err then
+                vim.notify("An error occurred: " .. tostring(err), vim.log.levels.ERROR)
+            end
+        end
+    )
+end
+
 function M.setup(user_opts)
   configs = vim.tbl_deep_extend('force', configs, user_opts or {})
 end
