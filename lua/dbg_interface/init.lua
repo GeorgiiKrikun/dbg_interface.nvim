@@ -10,14 +10,17 @@ local Snacks = require('snacks')
 
 local async_snacks_input = async.wrap(Snacks.input, 2)
 local async_snacks_select = async.wrap(Snacks.picker.select, 3)
+local done = function(callback, payload)
+    if callback then callback(payload) end
+end
 
 local configs = {}
-local function read_debug_config() 
+local function read_debug_config()
   local file = io.open(DbgConfig.local_storage, "r")
   if file then
     local content = file:read("*a")
     file:close()
-    
+
     local ok, data = pcall(vim.json.decode, content)
     if ok and type(data) == "table" then
         return DbgConfig.from_table(data)
@@ -42,8 +45,15 @@ function M.select_type(config, callback)
     async.run(
         function()
             local types = config.types
+            if not types then
+                vim.notify("No types exist; nothing to edit", vim.log.levels.ERROR)
+                done(callback, nil)
+                return
+            end
+
             if #types == 0 then
                 vim.notify("No types has been added; nothing to edit", vim.log.levels.ERROR)
+                done(callback, nil)
                 return
             end
 
@@ -59,9 +69,7 @@ function M.select_type(config, callback)
                 })
             end
             
-            if callback then
-                callback(selected_item)
-            end
+            done(callback, selected_item)
         end,
         function(err)
             if err then
@@ -144,8 +152,6 @@ M.select_args_async = async.wrap(M.select_args, 2)
 
 function M.edit_stuff(stuff, datatype, callback)
     local FloatWin = require "dbg_interface.FloatWin"
-    local utils = require "dbg_interface.utils"
-    -- NOTE: This is an ugly fix because something attaches methods not to metatable.
     async.run(
         function()
             local json = vim.json.encode(stuff)
@@ -155,7 +161,7 @@ function M.edit_stuff(stuff, datatype, callback)
             if callback then
                 callback(table_res)
             end
-        end, 
+        end,
         function(err)
             if err then
                 vim.notify("An error occurred: " .. tostring(err), vim.log.levels.ERROR)
@@ -183,6 +189,46 @@ function M.edit_type(config, callback)
         end
     )
 end
+
+function M.remove_type(config, callback)
+    async.run(
+        function()
+            local copied_config = vim.deepcopy(config)
+            local selected_type = M.select_type_async(copied_config)
+            if not selected_type then
+                done(callback, nil)
+                return
+            end
+
+            if copied_config.types and (#(copied_config.types) == 1) then
+                local result = async_snacks_select(
+                    {"Yes", "No"},
+                    { prompt = "Only single type left (" .. selected_type.debug_type .. ") are you sure you want to delete it?" }
+                )
+                if result ~= "Yes" then
+                    done(callback, nil)
+                    return
+                end
+            end
+
+            local idx = utils.find_element_idx(copied_config.types, selected_type)
+            if idx then
+                table.remove(copied_config.types, idx)
+            else
+                vim.notify("Error while removing the type " .. selected_type.debug_type)
+                done(callback, nil)
+                return
+            end
+            done(callback, copied_config)
+        end,
+        function(err)
+            if err then
+                vim.notify("An error occurred: " .. tostring(err), vim.log.levels.ERROR)
+            end
+        end
+    )
+end
+
 
 function M.edit_target(config, callback)
     async.run(
