@@ -4,6 +4,7 @@ local DbgTarget = require 'dbg_interface.DbgTarget'
 local DbgArguments = require 'dbg_interface.DbgArguments'
 local DbgType = require 'dbg_interface.DbgType'
 local DbgConfig = require 'dbg_interface.DbgConfig'
+local utils = require('dbg_interface.utils')
 local async = require('plenary.async')
 local Snacks = require('snacks')
 
@@ -41,12 +42,23 @@ function M.select_type(config, callback)
     async.run(
         function()
             local types = config.types
-            local selected_item = async_snacks_select(types, {
-                prompt = "Select a debug type:",
-                format_item = function(item)
-                    return item.debug_type
-                end
-            })
+            if #types == 0 then
+                vim.notify("No types has been added; nothing to edit", vim.log.levels.ERROR)
+                return
+            end
+
+            local selected_item = nil
+            if #types == 1 then
+                selected_item = types[1]
+            else
+                selected_item = async_snacks_select(types, {
+                    prompt = "Select a debug type:",
+                    format_item = function(item)
+                        return item.debug_type
+                    end
+                })
+            end
+            
             if callback then
                 callback(selected_item)
             end
@@ -66,12 +78,23 @@ function M.select_target(dbg_type, callback)
     async.run(
         function()
             local targets = dbg_type.targets
-            local selected_item = async_snacks_select(targets, {
-                prompt = "Select a debug target:",
-                format_item = function(item)
-                    return item.alias .. " [" .. item.relpath .. "]"
-                end
-            })
+            if #targets == 0 then
+                vim.notify("No targets has been added; nothing to edit", vim.log.levels.ERROR)
+                return
+            end
+
+            local selected_item = nil
+            if #targets == 1 then
+                selected_item = targets[1]
+            else
+                selected_item = async_snacks_select(targets, {
+                    prompt = "Select a debug target:",
+                    format_item = function(item)
+                        return item.alias .. " [" .. item.relpath .. "]"
+                    end
+                })
+            end
+
             if callback then
                 callback(selected_item)
             end
@@ -89,12 +112,23 @@ function M.select_args(target, callback)
     async.run(
         function()
             local args = target.args
-            local selected_item = async_snacks_select(args, {
-                prompt = "Select a debug arguments:",
-                format_item = function(item)
-                    return item.alias
-                end
-            })
+            if #args == 0 then
+                vim.notify("No targets has been added; nothing to edit", vim.log.levels.ERROR)
+                return
+            end
+
+            local selected_item = nil
+            if #args == 1 then
+                selected_item = args[1]
+            else
+                selected_item = async_snacks_select(args, {
+                    prompt = "Select a debug arguments:",
+                    format_item = function(item)
+                        return item.alias
+                    end
+                })
+            end
+
             if callback then
                 callback(selected_item)
             end
@@ -131,20 +165,33 @@ function M.edit_stuff(stuff, datatype, callback)
 end
 M.edit_stuff_async = async.wrap(M.edit_stuff, 3)
 
-
 function M.edit_type(config, callback)
     async.run(
         function()
             local copied_config = vim.deepcopy(config)
             local selected_type = M.select_type_async(copied_config)
             local edited_type = M.edit_stuff_async(selected_type, DbgType)
-            for i, t in ipairs(copied_config.types) do
-                if t == selected_type then
-                    copied_config.types[i] = edited_type
-                    break
-                end
-                vim.notify("Failed to replace the dictionary item", vim.log.levels.ERROR)
+            utils.replace_in_list(config.types, selected_type, edited_type)
+            if callback then
+                callback(copied_config)
             end
+        end,
+        function(err)
+            if err then
+                vim.notify("An error occurred: " .. tostring(err), vim.log.levels.ERROR)
+            end
+        end
+    )
+end
+
+function M.edit_target(config, callback)
+    async.run(
+        function()
+            local copied_config = vim.deepcopy(config)
+            local selected_type = M.select_type_async(copied_config)
+            local selected_target = M.select_target_async(selected_type)
+            local edited_target = M.edit_stuff_async(selected_target, DbgTarget)
+            utils.replace_in_list(selected_type.targets, selected_target, edited_target)
             if callback then
                 callback(copied_config)
             end
