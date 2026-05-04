@@ -464,14 +464,18 @@ M.add = {
                 local copied_config = vim.deepcopy(config)
                 local selected_type = M.select_type_async(copied_config)
                 local new_target_kwargs = DbgTarget.barebones()
-                print(vim.inspect(new_target_kwargs))
                 local edited_target_kwargs = M.edit_table_async(new_target_kwargs)
                 local new_target = DbgTarget:new(edited_target_kwargs)
 
-                table.insert(selected_type.targets, new_target)
-                if callback then
-                    callback(copied_config)
+                if selected_type:path_exists(new_target.relpath) then
+                    vim.notify("New executable path already exists", vim.log.levels.ERROR)
+
+                    done(callback, nil)
+                    return
                 end
+
+                table.insert(selected_type.targets, new_target)
+                done(callback, copied_config)
             end,
             function(err)
                 if err then

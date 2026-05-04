@@ -41,6 +41,17 @@ function DbgType:remove_target(target)
     self.targets = utils.remove_from_list(self.targets, target)
 end
 
+function DbgType:path_exists(path)
+    for _,t in ipairs(self.targets) do
+        if t.relpath == path then
+            return true
+        end
+    end
+    return false
+end
+
+
+
 function DbgType.create_from_user_config()
 
 end
