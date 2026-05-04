@@ -23,7 +23,7 @@ function M.remove_from_list(list, element)
 end
 
 function M.append_to_list(list, element)
-    list[#list + 1] = element
+    table.insert(list, element)
     return list
 end
 

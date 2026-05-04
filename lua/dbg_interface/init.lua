@@ -86,26 +86,24 @@ function M.select_type_from_plugin_configs(config, callback)
     async.run(
         function()
             local types = {}
-            for k,_ in pairs(M.get_plugin_config()) do
-                table.insert(types, k)
-            end
-
             local already_defined_types = {}
-            for _,v in ipairs(config.types) do
-                table.insert(already_defined_types, v.debug_type)
+
+            for k,_ in pairs(M.get_plugin_config()) do
+                already_defined_types[k] = false
             end
 
+            for _,v in ipairs(config.types) do
+                already_defined_types[v.debug_type] = true
+            end
 
-            
-
-            if not types then
-                vim.notify("No types exist; nothing to edit", vim.log.levels.ERROR)
-                done(callback, nil)
-                return
+            for k,v in pairs(already_defined_types) do
+                if not v then
+                    table.insert(types, k)
+                end
             end
 
             if #types == 0 then
-                vim.notify("No types has been defined in the plugin. Please take care of proper configuration of the plugin", vim.log.levels.ERROR)
+                vim.notify("No types has been defined in the plugin that are not present in the config", vim.log.levels.ERROR)
                 done(callback, nil)
                 return
             end
@@ -113,15 +111,16 @@ function M.select_type_from_plugin_configs(config, callback)
             local selected_item = nil
             if #types == 1 then
                 selected_item = types[1]
-                vim.notify("Adding the only existing type: " .. types[1])
+                vim.notify("Adding the only existing type: " .. types[1], vim.log.levels.INFO)
             else
                 selected_item = async_snacks_select(types, {
-                    prompt = "Select a debug type:",
+                    prompt = "Select a debug type to add:",
                     format_item = function(item)
                         return item.debug_type
                     end
                 })
             end
+
             done(callback, selected_item)
         end,
         function(err)
@@ -131,7 +130,7 @@ function M.select_type_from_plugin_configs(config, callback)
         end
     )
 end
-M.select_type_from_plugin_configs_async = async.wrap(M.select_type, 2)
+M.select_type_from_plugin_configs_async = async.wrap(M.select_type_from_plugin_configs, 2)
 
 --@param config DbgType
 --@return DbgTarget
@@ -424,9 +423,10 @@ M.add = {
         async.run(
             function()
                 local copied_config = vim.deepcopy(config)
-                local selected_type = M.select_type_from_plugin_configs_async(copied_config)
-                local edited_type = M.edit_stuff_async(selected_type, DbgType)
-                utils.replace_in_list(config.types, selected_type, edited_type)
+                local selected_type_name = M.select_type_from_plugin_configs_async(copied_config)
+                local new_debug_type = DbgType:new{debug_type = selected_type_name}
+                local edited_type = M.edit_stuff_async(new_debug_type, DbgType)
+                table.insert(copied_config.types, edited_type)
                 if callback then
                     callback(copied_config)
                 end
