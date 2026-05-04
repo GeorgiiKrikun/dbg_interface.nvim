@@ -223,6 +223,26 @@ function M.edit_stuff(stuff, datatype, callback)
 end
 M.edit_stuff_async = async.wrap(M.edit_stuff, 3)
 
+function M.edit_table(tbl, callback)
+    local FloatWin = require "dbg_interface.FloatWin"
+    async.run(
+        function()
+            local json = vim.json.encode(tbl)
+            json = utils.beautify_json(json)
+            local result = FloatWin.async_open_float_for_edit(json, "json")
+            local table_res = vim.json.decode(result)
+            if callback then
+                callback(table_res)
+            end
+        end,
+        function(err)
+            if err then
+                vim.notify("An error occurred: " .. tostring(err), vim.log.levels.ERROR)
+            end
+        end
+    )
+end
+M.edit_table_async = async.wrap(M.edit_table, 2)
 M.remove  = {
     type = function(config, callback)
         async.run(
@@ -437,6 +457,29 @@ M.add = {
                 end
             end
         )
+    end,
+    target = function(config, callback)
+        async.run(
+            function()
+                local copied_config = vim.deepcopy(config)
+                local selected_type = M.select_type_async(copied_config)
+                local new_target_kwargs = DbgTarget.barebones()
+                print(vim.inspect(new_target_kwargs))
+                local edited_target_kwargs = M.edit_table_async(new_target_kwargs)
+                local new_target = DbgTarget:new(edited_target_kwargs)
+
+                table.insert(selected_type.targets, new_target)
+                if callback then
+                    callback(copied_config)
+                end
+            end,
+            function(err)
+                if err then
+                    vim.notify("An error occurred: " .. tostring(err), vim.log.levels.ERROR)
+                end
+            end
+        )
+
     end
 }
 

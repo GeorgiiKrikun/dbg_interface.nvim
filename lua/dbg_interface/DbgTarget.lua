@@ -31,6 +31,7 @@ end
 
 function DebugTarget:_init(kwargs)
     kwargs = kwargs or {}
+
     local path = kwargs.path
 
     if is_empty(path) then
@@ -54,6 +55,14 @@ function DebugTarget:new(kwargs)
     local instance = setmetatable({}, self)
     instance:_init(kwargs)
     return instance
+end
+
+function DebugTarget.barebones()
+    local new_target = {
+        path = "path/to/debug/target",
+        alias = "name"
+    }
+    return new_target
 end
 
 function DebugTarget:to_json()
