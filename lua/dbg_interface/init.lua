@@ -41,8 +41,8 @@ end
 
 M.local_dbg_config = read_debug_config()
 
---@param config DbgConfig
---@return DbgType
+---@param config DbgConfig
+---@param callback function
 function M.select_type(config, callback)
     async.run(
         function()
@@ -95,9 +95,6 @@ function M.select_type_from_plugin_configs(config, callback)
                 table.insert(already_defined_types, v.debug_type)
             end
 
-
-            
-
             if not types then
                 vim.notify("No types exist; nothing to edit", vim.log.levels.ERROR)
                 done(callback, nil)
@@ -133,8 +130,8 @@ function M.select_type_from_plugin_configs(config, callback)
 end
 M.select_type_from_plugin_configs_async = async.wrap(M.select_type, 2)
 
---@param config DbgType
---@return DbgTarget
+---@param dbg_type DbgType
+---@param callback function
 function M.select_target(dbg_type, callback)
     async.run(
         function()
@@ -169,6 +166,8 @@ function M.select_target(dbg_type, callback)
 end
 M.select_target_async = async.wrap(M.select_target, 2)
 
+---@param target DbgTarget
+---@param callback function
 function M.select_args(target, callback)
     async.run(
         function()

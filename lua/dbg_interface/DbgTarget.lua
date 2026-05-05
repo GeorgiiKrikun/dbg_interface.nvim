@@ -2,13 +2,22 @@ local Enum = require('dbg_interface.Enum')
 local utils = require('dbg_interface.utils')
 local DebugArguments = require 'dbg_interface.DbgArguments'
 
+---@class DbgTarget
+---@field relpath string
+---@field alias string
+---@field executable_type executable_type
+---@field args DbgArguments[]
 local DebugTarget = {}
 DebugTarget.__index = DebugTarget
 
+---@param path string
+---@return boolean
 local function is_empty(path)
     return not path or path == ""
 end
 
+---@param path string
+---@return executable_type
 function DebugTarget.determine_executable_type(path) 
     if string.sub(path, #path - 2, #path) == ".py" then
         return Enum.executable_type.PYTHON
@@ -17,10 +26,13 @@ function DebugTarget.determine_executable_type(path)
     end
 end
 
+---@return table|nil
 function DebugTarget:exists()
     return vim.uv.fs_stat(self.relpath)
 end
 
+---@param tbl table
+---@return DbgTarget
 function DebugTarget.from_table(tbl)
     setmetatable(tbl, DebugTarget)
     for i,_ in ipairs(tbl.args) do
@@ -29,6 +41,7 @@ function DebugTarget.from_table(tbl)
     return tbl
 end
 
+---@param kwargs {path: string, alias?: string}
 function DebugTarget:_init(kwargs)
     kwargs = kwargs or {}
     local path = kwargs.path
@@ -50,21 +63,27 @@ function DebugTarget:_init(kwargs)
     self.args = {}
 end
 
+---@param kwargs {path: string, alias?: string}
+---@return DbgTarget
 function DebugTarget:new(kwargs)
     local instance = setmetatable({}, self)
     instance:_init(kwargs)
     return instance
 end
 
+---@return string
 function DebugTarget:to_json()
     local raw_json = vim.json.encode(self)
     return utils.beautify_json(raw_json)
 end
 
+---@param args DbgArguments
 function DebugTarget:add_arguments(args)
     utils.append_to_list(self.args, args)
 end
 
+---@param args DbgArguments
+---@return DbgArguments[]
 function DebugTarget:remove_arguments(args)
     return utils.remove_from_list(self.args, args)
 end

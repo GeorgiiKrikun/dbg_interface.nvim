@@ -1,7 +1,13 @@
+---@class FloatWin
+---@field win integer|nil
+---@field bufnr integer|nil
+---@field callback function|nil
+---@field whrc {w: integer, h: integer, r: integer, c: integer}
 local FloatWin = {}
 FloatWin.__index = FloatWin
 local async = require("plenary.async")
 
+---@type fun(target_json: string, ftype: string, kwargs?: table): string
 FloatWin.async_open_float_for_edit = async.wrap(function(
     target_json,
     ftype,
@@ -21,7 +27,9 @@ FloatWin.async_open_float_for_edit = async.wrap(function(
     end)
 end, 4)
 
+---@param kwargs? {width?: number, height?: number, callback?: function}
 function FloatWin:_init(kwargs)
+    kwargs = kwargs or {}
     self.win = nil
 
     local width_ratio = kwargs.width or 0.6
@@ -43,6 +51,8 @@ function FloatWin:_init(kwargs)
     self.callback = kwargs.callback
 end
 
+---@param kwargs? {width?: number, height?: number, callback?: function}
+---@return FloatWin
 function FloatWin:new(kwargs)
     local instance = setmetatable({}, self)
     instance:_init(kwargs)
@@ -50,12 +60,14 @@ function FloatWin:new(kwargs)
 end
 
 function FloatWin:close()
-    if vim.api.nvim_win_is_valid(self.win) then
+    if self.win and vim.api.nvim_win_is_valid(self.win) then
         vim.api.nvim_win_close(self.win, true)
     end
 
 end
 
+---@param text string
+---@param ftype? string
 function FloatWin:open(text, ftype)
     self.bufnr = vim.api.nvim_create_buf(false, true)
 
@@ -116,6 +128,7 @@ end
 
 function FloatWin:_set_return_hotkey()
     vim.keymap.set('n', '<CR>', function()
+        if not self.bufnr then return end
         local final_out = vim.api.nvim_buf_get_lines(self.bufnr, 0, -1, false)
         local string_out = table.concat(final_out, "\n")
 

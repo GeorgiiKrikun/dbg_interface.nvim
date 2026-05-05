@@ -1,5 +1,7 @@
 local M = {}
 
+---@param json string
+---@return string
 function M.beautify_json(json) 
     if vim.fn.executable("jq") == 1 then
         return vim.fn.system("jq .", json)
@@ -10,6 +12,10 @@ function M.beautify_json(json)
     return json
 end
 
+---@generic T
+---@param list T[]
+---@param element T
+---@return T[]
 function M.remove_from_list(list, element)
     local idx = nil
     for i, a in ipairs(list) do
@@ -18,15 +24,25 @@ function M.remove_from_list(list, element)
             break
         end
     end
-    table.remove(list, idx)
+    if idx then
+        table.remove(list, idx)
+    end
     return list
 end
 
+---@generic T
+---@param list T[]
+---@param element T
+---@return T[]
 function M.append_to_list(list, element)
     list[#list + 1] = element
     return list
 end
 
+---@generic T
+---@param list T[]
+---@param element T
+---@return integer|nil
 function M.find_element_idx(list, element)
     local idx = nil
     for i,v in ipairs(list) do
@@ -39,6 +55,10 @@ function M.find_element_idx(list, element)
     return idx
 end
 
+---@generic T
+---@param list T[]
+---@param old_element T
+---@param new_element T
 function M.replace_in_list(list, old_element, new_element)
     local idx = M.find_element_idx(list, old_element)
     if idx then

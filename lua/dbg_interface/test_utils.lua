@@ -5,9 +5,10 @@ local DebugArguments = require 'dbg_interface.DbgArguments'
 local DebugType = require "dbg_interface.DbgType"
 local DebugHistory = require "dbg_interface.DbgConfig"
 
+---@return DbgConfig
 M.generate_test_data = function()
     local target = DebugTarget:new{
-        path = vim.fs.abspath("dbg_test_execs/cpp/build/target1_pointers"),
+        path = vim.fs.abspath("dbg_test_execs/cpp/build/target1_pointers") or "",
         alias = "pointers",
     }
 
@@ -30,7 +31,7 @@ M.generate_test_data = function()
     target:add_arguments(args3)
 
     local target2 = DebugTarget:new{
-        path = vim.fs.abspath("dbg_test_execs/python/main.py"),
+        path = vim.fs.abspath("dbg_test_execs/python/main.py") or "",
         alias = "py_backend",
     }
 
@@ -52,7 +53,7 @@ M.generate_test_data = function()
 
     -- Third debug target (e.g., a Rust or C binary using lldb)
     local target3 = DebugTarget:new{
-        path = vim.fs.abspath("dbg_test_execs/cpp/build/target2_classes"),
+        path = vim.fs.abspath("dbg_test_execs/cpp/build/target2_classes") or "",
         alias = "classes",
     }
 
@@ -67,10 +68,10 @@ M.generate_test_data = function()
     target3:add_arguments(t3_args2)
 
     local dbg_type_cpp = DebugType:new{debug_type = "cpp"}
-    dbg_type_cpp:add_targets{target, target3}
+    dbg_type_cpp:add_targets({target, target3})
 
     local dbg_type_python = DebugType:new{debug_type = "python"}
-    dbg_type_python:add_targets{target2}
+    dbg_type_python:add_targets({target2})
 
     local hist = DebugHistory:new { types = {dbg_type_cpp, dbg_type_python} }
     return hist
