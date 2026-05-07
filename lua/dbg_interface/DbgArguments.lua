@@ -23,6 +23,10 @@ function DebugArguments.from_table(tbl)
     return tbl
 end
 
+function DebugArguments.barebones()
+    return { args = {}, alias = "" }
+end
+
 function DebugArguments:force_args_to_string()
     for i,v in ipairs(self.args) do
         self.args[i] = tostring(v)

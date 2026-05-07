@@ -469,7 +469,6 @@ M.add = {
 
                 if selected_type:path_exists(new_target.relpath) then
                     vim.notify("New executable path already exists", vim.log.levels.ERROR)
-
                     done(callback, nil)
                     return
                 end
@@ -483,7 +482,35 @@ M.add = {
                 end
             end
         )
+    end,
+    args = function(config, callback)
+        async.run(
+            function()
+                local copied_config = vim.deepcopy(config)
+                local selected_type = M.select_type_async(copied_config)
+                if not selected_type then
+                    done(callback, nil)
+                    return
+                end
 
+                local selected_target = M.select_target_async(selected_type)
+                if not selected_target then
+                    done(callback, nil)
+                    return
+                end
+
+                local new_args_kwargs = DbgArguments.barebones()
+                local edited_args_kwargs = M.edit_table_async(new_args_kwargs)
+                local new_args = DbgArguments:new(edited_args_kwargs)
+                table.insert(selected_target.args, new_args)
+                done(callback, copied_config)
+            end,
+            function(err)
+                if err then
+                    vim.notify("An error occurred: " .. tostring(err), vim.log.levels.ERROR)
+                end
+            end
+        )
     end
 }
 
