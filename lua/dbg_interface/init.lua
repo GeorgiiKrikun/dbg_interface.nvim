@@ -26,6 +26,7 @@ M.edit_table_async = edit_ui.edit_table_async
 M.add = actions.add
 M.edit = actions.edit
 M.remove = actions.remove
+M.clone = actions.clone
 
 M.setup = plugin_config.setup
 M.get_plugin_config = plugin_config.get
