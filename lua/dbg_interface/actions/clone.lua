@@ -47,7 +47,38 @@ M.target = function(config, callback)
 end
 
 M.args = function(config, callback)
-    -- TODO: implement
+    async.run(
+        function()
+            local copied_config = vim.deepcopy(config)
+            local selected_type = select.type_async(copied_config)
+            if not selected_type then
+                done(callback, nil)
+                return
+            end
+
+            local selected_target = select.target_async(selected_type)
+            if not selected_target then
+                done(callback, nil)
+                return
+            end
+
+            local template = select.args_async(selected_target)
+            if not template then
+                done(callback, nil)
+                return
+            end
+
+            local template_copy = vim.deepcopy(template)
+            local new_args = edit_ui.edit_stuff_async(template_copy, DbgArguments)
+            table.insert(selected_target.args, new_args)
+            done(callback, copied_config)
+        end,
+        function(err)
+            if err then
+                vim.notify("An error occurred: " .. tostring(err), vim.log.levels.ERROR)
+            end
+        end
+    )
 end
 
 return M
