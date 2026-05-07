@@ -4,6 +4,7 @@ local plugin_config = require('dbg_interface.plugin_config')
 local dbg_config = require('dbg_interface.config')
 local select = require('dbg_interface.select')
 local edit_ui = require('dbg_interface.edit_ui')
+local actions = require('dbg_interface.actions')
 
 M.local_dbg_config = dbg_config.local_dbg_config
 M.save_debug_config = dbg_config.save
@@ -22,9 +23,9 @@ M.edit_stuff_async = edit_ui.edit_stuff_async
 M.edit_table = edit_ui.edit_table
 M.edit_table_async = edit_ui.edit_table_async
 
-M.add = require('dbg_interface.actions.add')
-M.edit = require('dbg_interface.actions.edit')
-M.remove = require('dbg_interface.actions.remove')
+M.add = actions.add
+M.edit = actions.edit
+M.remove = actions.remove
 
 M.setup = plugin_config.setup
 M.get_plugin_config = plugin_config.get
