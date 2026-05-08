@@ -1,4 +1,5 @@
 local DbgConfig = require 'dbg_interface.DbgConfig'
+local utils = require 'dbg_interface.utils'
 
 local M = {}
 
@@ -17,7 +18,7 @@ end
 function M.save(config, path)
     local file = io.open(path, "w")
     if file then
-        local encoded = vim.json.encode(config)
+        local encoded = utils.beautify_json(vim.json.encode(config))
         file:write(encoded)
         file:close()
     end
