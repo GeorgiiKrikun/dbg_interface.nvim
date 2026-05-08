@@ -20,7 +20,7 @@ function M.open_edit_win(target_json, ftype, kwargs, cb)
 
     vim.schedule(function()
         local scratch = vim.api.nvim_create_buf(false, true)
-        vim.api.nvim_open_win(scratch, true, kwargs.window)
+        local win = vim.api.nvim_open_win(scratch, true, kwargs.window)
         vim.cmd("edit " .. vim.fn.fnameescape(tmpfile))
         local bufnr = vim.api.nvim_get_current_buf()
         local augroup = vim.api.nvim_create_augroup("EditWin_" .. bufnr, { clear = true })
@@ -34,6 +34,7 @@ function M.open_edit_win(target_json, ftype, kwargs, cb)
             cb(content)
         end
 
+        -- Write = submit: finish first so the augroup is cleared before bdelete fires WinClosed
         vim.api.nvim_create_autocmd("BufWritePost", {
             group = augroup,
             buffer = bufnr,
@@ -41,18 +42,19 @@ function M.open_edit_win(target_json, ftype, kwargs, cb)
             callback = function()
                 local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
                 local content = table.concat(lines, "\n")
-                vim.cmd("bdelete " .. bufnr)
                 finish(content)
+                pcall(vim.api.nvim_buf_delete, bufnr, { force = true })
             end,
         })
 
-        -- Close without saving = cancel
-        vim.api.nvim_create_autocmd("BufDelete", {
+        -- q / :close / any window exit without saving = cancel
+        vim.api.nvim_create_autocmd("WinClosed", {
             group = augroup,
-            buffer = bufnr,
+            pattern = tostring(win),
             once = true,
             callback = function()
                 finish(nil)
+                pcall(vim.api.nvim_buf_delete, bufnr, { force = true })
             end,
         })
     end)
