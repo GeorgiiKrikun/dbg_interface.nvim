@@ -1,0 +1,61 @@
+local async = require("plenary.async")
+
+local M = {}
+
+function M.open_edit_win(target_json, ftype, kwargs, cb)
+    kwargs = kwargs or {}
+
+    local ext = ftype and ("." .. ftype) or ""
+    local tmpfile = vim.fn.tempname() .. ext
+
+    local f = io.open(tmpfile, "w")
+    if not f then
+        vim.notify("EditWin: failed to create temp file", vim.log.levels.ERROR)
+        cb(nil)
+        return
+    end
+    f:write(target_json)
+    f:close()
+
+    vim.schedule(function()
+        vim.cmd("botright split " .. vim.fn.fnameescape(tmpfile))
+        local bufnr = vim.api.nvim_get_current_buf()
+        local augroup = vim.api.nvim_create_augroup("EditWin_" .. bufnr, { clear = true })
+        local done = false
+
+        local function finish(content)
+            if done then return end
+            done = true
+            pcall(vim.api.nvim_del_augroup_by_id, augroup)
+            pcall(os.remove, tmpfile)
+            cb(content)
+        end
+
+        vim.api.nvim_create_autocmd("BufWritePost", {
+            group = augroup,
+            buffer = bufnr,
+            once = true,
+            callback = function()
+                local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+                local content = table.concat(lines, "\n")
+                vim.cmd("bdelete " .. bufnr)
+                finish(content)
+            end,
+        })
+
+        -- Close without saving = cancel
+        vim.api.nvim_create_autocmd("BufDelete", {
+            group = augroup,
+            buffer = bufnr,
+            once = true,
+            callback = function()
+                finish(nil)
+            end,
+        })
+    end)
+end
+
+-- Same signature as FloatWin.async_open_float_for_edit: (target_json, ftype, kwargs, cb)
+M.async_open_for_edit = async.wrap(M.open_edit_win, 4)
+
+return M
