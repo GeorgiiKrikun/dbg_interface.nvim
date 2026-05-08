@@ -3,7 +3,12 @@ local async = require("plenary.async")
 local M = {}
 
 function M.open_edit_win(target_json, ftype, kwargs, cb)
-    kwargs = kwargs or {}
+    kwargs = vim.tbl_deep_extend("force", {
+        window = {
+            split = "below",
+            win = -1,
+        },
+    }, kwargs or {})
 
     local ext = ftype and ("." .. ftype) or ""
     local tmpfile = vim.fn.tempname() .. ext
@@ -18,7 +23,9 @@ function M.open_edit_win(target_json, ftype, kwargs, cb)
     f:close()
 
     vim.schedule(function()
-        vim.cmd("botright split " .. vim.fn.fnameescape(tmpfile))
+        local scratch = vim.api.nvim_create_buf(false, true)
+        vim.api.nvim_open_win(scratch, true, kwargs.window)
+        vim.cmd("edit " .. vim.fn.fnameescape(tmpfile))
         local bufnr = vim.api.nvim_get_current_buf()
         local augroup = vim.api.nvim_create_augroup("EditWin_" .. bufnr, { clear = true })
         local done = false
