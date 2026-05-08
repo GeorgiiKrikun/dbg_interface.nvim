@@ -1,7 +1,14 @@
 local keymaps = require('dbg_interface.keymaps')
 local M = {}
 
-local configs = {}
+local configs = {
+    edit_win = {
+        window = {
+            split = "below",
+            win = -1,
+        },
+    },
+}
 
 function M.setup(user_opts)
     configs = vim.tbl_deep_extend('force', configs, user_opts or {})

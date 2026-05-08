@@ -3,12 +3,8 @@ local async = require("plenary.async")
 local M = {}
 
 function M.open_edit_win(target_json, ftype, kwargs, cb)
-    kwargs = vim.tbl_deep_extend("force", {
-        window = {
-            split = "below",
-            win = -1,
-        },
-    }, kwargs or {})
+    local plugin_config = require("dbg_interface.plugin_config")
+    kwargs = vim.tbl_deep_extend("force", plugin_config.get().edit_win, kwargs or {})
 
     local ext = ftype and ("." .. ftype) or ""
     local tmpfile = vim.fn.tempname() .. ext
