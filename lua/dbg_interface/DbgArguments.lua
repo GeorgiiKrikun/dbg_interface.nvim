@@ -5,7 +5,7 @@ function DebugArguments:_init(kwargs)
     self.args = kwargs.args or {}
     if #self.args > 0 then
         self:force_args_to_string()
-        self.alias = kwargs.alias or table.concat(kwargs.args, " ")
+        self.alias = (kwargs.alias and kwargs.alias ~= "") or table.concat(kwargs.args, " ")
     else
         self.alias = "no args"
     end

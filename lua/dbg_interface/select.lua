@@ -55,7 +55,7 @@ function M.type_from_plugin_configs(config, callback)
             local types = {}
             local already_defined_types = {}
 
-            for k,_ in pairs(plugin_config.get()) do
+            for k,_ in pairs(plugin_config.get().debug_types) do
                 already_defined_types[k] = false
             end
 
@@ -83,7 +83,7 @@ function M.type_from_plugin_configs(config, callback)
                 selected_item = async_snacks_select(types, {
                     prompt = "Select a debug type to add:",
                     format_item = function(item)
-                        return item.debug_type
+                        return item
                     end
                 })
             end
