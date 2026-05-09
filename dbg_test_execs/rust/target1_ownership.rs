@@ -10,8 +10,18 @@ fn borrow_data(v: &Vec<i32>) {
 }
 
 fn main() {
-    let my_string = String::from("Hello Debugger");
-    let mut my_vec = vec![1, 2, 3];
+    let args: Vec<String> = std::env::args().collect();
+    let greeting = if args.len() > 1 { &args[1] } else { "Hello Debugger" };
+    let repeat_count: usize = if args.len() > 2 {
+        args[2].parse().unwrap_or(1)
+    } else {
+        1
+    };
+
+    println!("Args: {:?}", &args[1..]);
+
+    let my_string = String::from(greeting);
+    let mut my_vec: Vec<i32> = (1..=(repeat_count as i32)).collect();
 
     borrow_data(&my_vec);
 

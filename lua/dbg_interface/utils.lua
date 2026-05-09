@@ -1,8 +1,16 @@
 local M = {}
 
-function M.beautify_json(json) 
+function M.json_encode(tbl)
+    return require('dbg_interface.plugin_config').get().json.encode(tbl)
+end
+
+function M.json_decode(str)
+    return require('dbg_interface.plugin_config').get().json.decode(str)
+end
+
+function M.beautify_json(json)
     if vim.fn.executable("jq") == 1 then
-        return vim.fn.system("jq .", json)
+        return vim.fn.system("jq --sort-keys .", json)
     else
         vim.notify_once("`jq` is absent from a system. Json will not be human readable.")
     end

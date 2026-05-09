@@ -46,7 +46,11 @@ function DebugTarget:_init(kwargs)
     end
 
     self.relpath = relpath
-    self.alias = (kwargs.alias and kwargs.alias ~= "") or vim.fs.basename(relpath)
+    if kwargs.alias and kwargs.alias ~= "" then
+        self.alias = kwargs.alias
+    else
+        self.alias = vim.fs.basename(relpath)
+    end
     self.executable_type = self.determine_executable_type(path)
     self.args = {}
 end
@@ -66,7 +70,7 @@ function DebugTarget.barebones()
 end
 
 function DebugTarget:to_json()
-    local raw_json = vim.json.encode(self)
+    local raw_json = utils.json_encode(self)
     return utils.beautify_json(raw_json)
 end
 

@@ -7,11 +7,11 @@ local M = {}
 function M.edit_stuff(stuff, datatype, callback)
     async.run(
         function()
-            local json = vim.json.encode(stuff)
+            local json = utils.json_encode(stuff)
             json = utils.beautify_json(json)
             local result = EditWin.async_open_for_edit(json, "json")
             if result == nil then return end
-            local table_res = datatype.from_table(vim.json.decode(result))
+            local table_res = datatype.from_table(utils.json_decode(result))
             if callback then
                 callback(table_res)
             end
@@ -28,11 +28,11 @@ M.edit_stuff_async = async.wrap(M.edit_stuff, 3)
 function M.edit_table(tbl, callback)
     async.run(
         function()
-            local json = vim.json.encode(tbl)
+            local json = utils.json_encode(tbl)
             json = utils.beautify_json(json)
             local result = EditWin.async_open_for_edit(json, "json")
             if result == nil then return end
-            local table_res = vim.json.decode(result)
+            local table_res = utils.json_decode(result)
             if callback then
                 callback(table_res)
             end

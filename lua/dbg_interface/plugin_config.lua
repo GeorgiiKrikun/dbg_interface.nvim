@@ -8,6 +8,10 @@ local configs = {
             win = -1,
         },
     },
+    json = {
+        encode = vim.json.encode,
+        decode = vim.json.decode,
+    },
 }
 
 function M.setup(user_opts)

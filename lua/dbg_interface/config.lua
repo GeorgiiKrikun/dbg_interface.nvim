@@ -8,7 +8,7 @@ function M.read()
     if file then
         local content = file:read("*a")
         file:close()
-        local ok, data = pcall(vim.json.decode, content)
+        local ok, data = pcall(utils.json_decode, content)
         if ok and type(data) == "table" then
             return DbgConfig.from_table(data)
         else
@@ -22,7 +22,7 @@ end
 function M.save(config, path)
     local file = io.open(path, "w")
     if file then
-        local encoded = utils.beautify_json(vim.json.encode(config))
+        local encoded = utils.beautify_json(utils.json_encode(config))
         file:write(encoded)
         file:close()
     end
