@@ -46,7 +46,7 @@ function DebugTarget:_init(kwargs)
     end
 
     self.relpath = relpath
-    self.alias = kwargs.alias or vim.fs.basename(relpath)
+    self.alias = (kwargs.alias and kwargs.alias ~= "") or vim.fs.basename(relpath)
     self.executable_type = self.determine_executable_type(path)
     self.args = {}
 end
@@ -60,7 +60,7 @@ end
 function DebugTarget.barebones()
     local new_target = {
         path = "path/to/debug/target",
-        alias = "name"
+        alias = ""
     }
     return new_target
 end

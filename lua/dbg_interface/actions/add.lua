@@ -16,12 +16,17 @@ M.type = function(config, callback)
         function()
             local copied_config = vim.deepcopy(config)
             local selected_type_name = select.type_from_plugin_configs_async(copied_config)
+            if not selected_type_name then
+                done(callback, nil)
+            end
+
             local new_debug_type = DbgType:new{debug_type = selected_type_name}
             local edited_type = edit_ui.edit_stuff_async(new_debug_type, DbgType)
-            table.insert(copied_config.types, edited_type)
-            if callback then
-                callback(copied_config)
+            if not edited_type then
+                done(callback, nil)
             end
+            table.insert(copied_config.types, edited_type)
+            done(callback, nil)
         end,
         function(err)
             if err then
