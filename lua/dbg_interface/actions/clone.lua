@@ -4,12 +4,16 @@ local edit_ui = require('dbg_interface.edit_ui')
 local DbgTarget = require('dbg_interface.DbgTarget')
 local DbgArguments = require('dbg_interface.DbgArguments')
 
+---@param callback fun(config: DebugConfig|nil)|nil
+---@param payload  DebugConfig|nil
 local done = function(callback, payload)
     if callback then callback(payload) end
 end
 
 local M = {}
 
+---@param config   DebugConfig
+---@param callback fun(config: DebugConfig|nil)|nil
 M.target = function(config, callback)
     async.run(
         function()
@@ -46,6 +50,8 @@ M.target = function(config, callback)
     )
 end
 
+---@param config   DebugConfig
+---@param callback fun(config: DebugConfig|nil)|nil
 M.args = function(config, callback)
     async.run(
         function()

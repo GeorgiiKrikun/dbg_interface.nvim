@@ -3,6 +3,7 @@ local utils = require 'dbg_interface.utils'
 
 local M = {}
 
+---@return DebugConfig|nil
 function M.read()
     local file = io.open(DbgConfig.local_storage, "r")
     if file then
@@ -19,6 +20,8 @@ function M.read()
     end
 end
 
+---@param config DebugConfig
+---@param path   string  destination file path
 function M.save(config, path)
     local file = io.open(path, "w")
     if file then

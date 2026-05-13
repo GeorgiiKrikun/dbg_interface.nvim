@@ -2,6 +2,11 @@ local Enum = require('dbg_interface.Enum')
 local utils = require('dbg_interface.utils')
 local DebugArguments = require 'dbg_interface.DbgArguments'
 
+---@class DbgTarget
+---@field relpath          string           path to the executable relative to cwd
+---@field alias            string           display name shown in pickers
+---@field executable_type  string           value from Enum.executable_type (BINARY or PYTHON)
+---@field args             DbgArguments[]   registered argument presets
 local DebugTarget = {}
 DebugTarget.__index = DebugTarget
 
@@ -9,18 +14,23 @@ local function is_empty(path)
     return not path or path == ""
 end
 
-function DebugTarget.determine_executable_type(path) 
+---@param path string  absolute or relative path to the executable
+---@return string      one of Enum.executable_type values
+function DebugTarget.determine_executable_type(path)
     if string.sub(path, #path - 2, #path) == ".py" then
         return Enum.executable_type.PYTHON
-    else 
+    else
         return Enum.executable_type.BINARY
     end
 end
 
+---@return table|nil  uv stat result, or nil if the file does not exist
 function DebugTarget:exists()
     return vim.uv.fs_stat(self.relpath)
 end
 
+---@param tbl table
+---@return DbgTarget
 function DebugTarget.from_table(tbl)
     setmetatable(tbl, DebugTarget)
     for i,_ in ipairs(tbl.args) do
@@ -29,6 +39,7 @@ function DebugTarget.from_table(tbl)
     return tbl
 end
 
+---@param kwargs { path: string, alias: string|nil }
 function DebugTarget:_init(kwargs)
     kwargs = kwargs or {}
 
@@ -55,12 +66,16 @@ function DebugTarget:_init(kwargs)
     self.args = {}
 end
 
+---@param kwargs { path: string, alias: string|nil }
+---@return DbgTarget
 function DebugTarget:new(kwargs)
     local instance = setmetatable({}, self)
     instance:_init(kwargs)
     return instance
 end
 
+--- Returns a plain table template suitable for editing before constructing a real instance.
+---@return { path: string, alias: string }
 function DebugTarget.barebones()
     local new_target = {
         path = "path/to/debug/target",
@@ -69,15 +84,19 @@ function DebugTarget.barebones()
     return new_target
 end
 
+---@return string  pretty-printed JSON representation
 function DebugTarget:to_json()
     local raw_json = utils.json_encode(self)
     return utils.beautify_json(raw_json)
 end
 
+---@param args DbgArguments
 function DebugTarget:add_arguments(args)
     utils.append_to_list(self.args, args)
 end
 
+---@param args DbgArguments
+---@return DbgArguments[]
 function DebugTarget:remove_arguments(args)
     return utils.remove_from_list(self.args, args)
 end

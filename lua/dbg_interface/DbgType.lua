@@ -1,9 +1,13 @@
+---@class DbgType
+---@field debug_type  string       language/adapter key, e.g. "rust", "cpp", "python"
+---@field targets     DbgTarget[]  registered debug targets for this type
 local DbgType = {}
 DbgType.__index = DbgType
 
 local utils = require('dbg_interface.utils')
 local DbgTarget = require 'dbg_interface.DbgTarget'
 
+---@param kwargs { debug_type: string }
 function DbgType:_init(kwargs)
     kwargs = kwargs or {}
     if not kwargs.debug_type then
@@ -13,12 +17,16 @@ function DbgType:_init(kwargs)
     self.targets = {}
 end
 
+---@param kwargs { debug_type: string }
+---@return DbgType
 function DbgType:new(kwargs)
     local instance = setmetatable({}, self)
     instance:_init(kwargs)
     return instance
 end
 
+---@param tbl table
+---@return DbgType
 function DbgType.from_table(tbl)
     setmetatable(tbl, DbgType)
     for i,_ in ipairs(tbl.targets) do
@@ -27,20 +35,25 @@ function DbgType.from_table(tbl)
     return tbl
 end
 
+---@param target DbgTarget
 function DbgType:add_target(target)
     self.targets = utils.append_to_list(self.targets, target)
 end
 
+---@param targets DbgTarget[]
 function DbgType:add_targets(targets)
     for i, v in ipairs(targets) do
         self.targets = utils.append_to_list(self.targets, v)
     end
 end
 
+---@param target DbgTarget
 function DbgType:remove_target(target)
     self.targets = utils.remove_from_list(self.targets, target)
 end
 
+---@param path string  relpath to check
+---@return boolean
 function DbgType:path_exists(path)
     for _,t in ipairs(self.targets) do
         if t.relpath == path then

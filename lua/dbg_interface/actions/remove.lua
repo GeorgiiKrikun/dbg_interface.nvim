@@ -5,12 +5,16 @@ local utils = require('dbg_interface.utils')
 
 local async_snacks_select = async.wrap(Snacks.picker.select, 3)
 
+---@param callback fun(config: DebugConfig|nil)|nil
+---@param payload  DebugConfig|nil
 local done = function(callback, payload)
     if callback then callback(payload) end
 end
 
 local M = {}
 
+---@param config   DebugConfig
+---@param callback fun(config: DebugConfig|nil)|nil
 M.type = function(config, callback)
     async.run(
         function()
@@ -50,6 +54,8 @@ M.type = function(config, callback)
     )
 end
 
+---@param config   DebugConfig
+---@param callback fun(config: DebugConfig|nil)|nil
 M.target = function(config, callback)
     async.run(
         function()
@@ -95,6 +101,8 @@ M.target = function(config, callback)
     )
 end
 
+---@param config   DebugConfig
+---@param callback fun(config: DebugConfig|nil)|nil
 M.args = function(config, callback)
     async.run(
         function()

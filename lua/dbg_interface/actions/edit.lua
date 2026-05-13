@@ -8,6 +8,8 @@ local utils = require('dbg_interface.utils')
 
 local M = {}
 
+---@param config   DebugConfig
+---@param callback fun(config: DebugConfig|nil)|nil
 M.type = function(config, callback)
     async.run(
         function()
@@ -27,6 +29,8 @@ M.type = function(config, callback)
     )
 end
 
+---@param config   DebugConfig
+---@param callback fun(config: DebugConfig|nil)|nil
 M.target = function(config, callback)
     async.run(
         function()
@@ -47,6 +51,8 @@ M.target = function(config, callback)
     )
 end
 
+---@param config   DebugConfig
+---@param callback fun(config: DebugConfig|nil)|nil
 M.args = function(config, callback)
     async.run(
         function()
