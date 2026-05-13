@@ -13,6 +13,7 @@ local defaults = {
     remove_args   = '<leader>Dra',
     clone_target  = '<leader>Dcx',
     clone_args    = '<leader>Dca',
+    run_target    = '<leader>Dsr',
 }
 
 local actions = {
@@ -27,6 +28,7 @@ local actions = {
     remove_args   = { get = function(d) return d.remove.args end,    desc = 'dbg: remove args' },
     clone_target  = { get = function(d) return d.clone.target end,   desc = 'dbg: clone target' },
     clone_args    = { get = function(d) return d.clone.args end,     desc = 'dbg: clone args' },
+    run_target    = { get = function(d) return d.run.target end,     desc = 'dbg: run target' },
 }
 
 local function bind(get_action)

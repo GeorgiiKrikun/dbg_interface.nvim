@@ -12,6 +12,7 @@ M.add = actions.add
 M.edit = actions.edit
 M.remove = actions.remove
 M.clone = actions.clone
+M.run = actions.run
 
 M.to_dap_config = dap.to_dap_config
 
