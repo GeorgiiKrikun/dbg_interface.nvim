@@ -74,4 +74,14 @@ function M.replace_in_list(list, old_element, new_element)
     end
 end
 
+---@param callback fun(config: DebugConfig|nil)|nil
+---@param payload  DebugConfig|nil
+M.done = function(callback, payload)
+    if callback then
+        callback(payload)
+    else
+        vim.notify("Callback is empty", vim.log.levels.ERROR)
+    end
+end
+
 return M

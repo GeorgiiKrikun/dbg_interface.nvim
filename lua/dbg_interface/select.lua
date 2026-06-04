@@ -1,14 +1,11 @@
 local async = require('plenary.async')
 local Snacks = require('snacks')
 local plugin_config = require('dbg_interface.plugin_config')
-
+local utils = require('dbg_interface.utils')
+local done = utils.done
 local M = {}
 
 local async_snacks_select = async.wrap(Snacks.picker.select, 3)
-
-local done = function(callback, payload)
-    if callback then callback(payload) end
-end
 
 function M.type(config, callback)
     async.run(
@@ -50,8 +47,10 @@ end
 M.type_async = async.wrap(M.type, 2)
 
 function M.type_from_plugin_configs(config, callback)
+    print("Callback:" .. tostring(callback))
     async.run(
         function()
+            print("enter")
             local types = {}
             local already_defined_types = {}
 

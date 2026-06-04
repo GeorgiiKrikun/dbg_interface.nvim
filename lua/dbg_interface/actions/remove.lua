@@ -7,9 +7,7 @@ local async_snacks_select = async.wrap(Snacks.picker.select, 3)
 
 ---@param callback fun(config: DebugConfig|nil)|nil
 ---@param payload  DebugConfig|nil
-local done = function(callback, payload)
-    if callback then callback(payload) end
-end
+local done = utils.done
 
 local M = {}
 

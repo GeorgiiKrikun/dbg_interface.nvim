@@ -1,5 +1,6 @@
 local M = {}
 
+
 local plugin_config = require('dbg_interface.plugin_config')
 
 --- Build a ready-to-use nvim-dap launch config from the plugin's data model.
@@ -11,6 +12,9 @@ local plugin_config = require('dbg_interface.plugin_config')
 ---@return table|nil  DAP config table for dap.run(), nil if the type is not in plugin config
 function M.to_dap_config(dbg_type, target, args)
     local type_entry_config = vim.tbl_get(plugin_config.get(), 'debug_types', dbg_type.debug_type, 'config')
+    if not type_entry_config then
+        return nil
+    end
 
     local name = target.alias
     if args and args.alias and args.alias ~= "no args" then

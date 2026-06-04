@@ -16,3 +16,6 @@ clean-cpp:
 
 # Clean and re-build C++ targets
 rebuild-cpp: clean-cpp build-cpp
+
+build-rust:
+    cd ./rust && cargo build

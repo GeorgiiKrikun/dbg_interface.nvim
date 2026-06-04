@@ -3,12 +3,8 @@ local select = require('dbg_interface.select')
 local edit_ui = require('dbg_interface.edit_ui')
 local DbgTarget = require('dbg_interface.DbgTarget')
 local DbgArguments = require('dbg_interface.DbgArguments')
-
----@param callback fun(config: DebugConfig|nil)|nil
----@param payload  DebugConfig|nil
-local done = function(callback, payload)
-    if callback then callback(payload) end
-end
+local utils = require('dbg_interface.utils')
+local done = utils.done
 
 local M = {}
 
