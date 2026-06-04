@@ -19,3 +19,12 @@ rebuild-cpp: clean-cpp build-cpp
 
 build-rust:
     cd ./rust && cargo build
+
+# Create venv and install packages for python-venv targets
+setup-python-venv:
+    python3 -m venv python-venv/venv
+    python-venv/venv/bin/pip install -r python-venv/requirements.txt
+
+# Remove the python-venv virtualenv
+clean-python-venv:
+    rm -rf python-venv/venv

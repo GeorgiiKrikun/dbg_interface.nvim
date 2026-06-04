@@ -16,15 +16,17 @@ M.type = function(config, callback)
             local selected_type_name = select.type_from_plugin_configs_async(copied_config)
             if not selected_type_name then
                 done(callback, nil)
+                return
             end
 
             local new_debug_type = DbgType:new{debug_type = selected_type_name}
             local edited_type = edit_ui.edit_stuff_async(new_debug_type, DbgType)
             if not edited_type then
                 done(callback, nil)
+                return
             end
             table.insert(copied_config.types, edited_type)
-            done(callback, nil)
+            done(callback, copied_config)
         end,
         function(err)
             if err then

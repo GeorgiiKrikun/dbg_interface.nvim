@@ -1,0 +1,15 @@
+{
+  "types": [
+    {
+      "debug_type": "python",
+      "targets": [
+        {
+          "alias": "target1_requests.py",
+          "args": [],
+          "executable_type": "PYTHON",
+          "relpath": "target1_requests.py"
+        }
+      ]
+    }
+  ]
+}
