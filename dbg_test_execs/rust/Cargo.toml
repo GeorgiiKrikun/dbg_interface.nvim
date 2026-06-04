@@ -1,0 +1,19 @@
+[package]
+name = "multi_debugger_rust_targets"
+version = "0.1.0"
+edition = "2021"
+
+# Target 1
+[[bin]]
+name = "target1_ownership"
+path = "target1_ownership.rs"
+
+# Target 2
+[[bin]]
+name = "target2_enums"
+path = "target2_enums.rs"
+
+# Target 3
+[[bin]]
+name = "target3_panics"
+path = "target3_panics.rs"

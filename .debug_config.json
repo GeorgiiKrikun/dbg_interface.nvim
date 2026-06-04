@@ -1,0 +1,88 @@
+{
+  "types": [
+    {
+      "targets": [
+        {
+          "args": [],
+          "executable_type": "BINARY",
+          "relpath": "dbg_test_execs/cpp/build/target1_pointers",
+          "alias": "pointers"
+        },
+        {
+          "args": [],
+          "executable_type": "BINARY",
+          "relpath": "dbg_test_execs/cpp/build/target2_classes",
+          "alias": "classes"
+        },
+        {
+          "args": [],
+          "executable_type": "BINARY",
+          "relpath": "dbg_test_execs/cpp/build/target3_threads",
+          "alias": "threads"
+        }
+      ],
+      "debug_type": "cpp"
+    },
+    {
+      "targets": [
+        {
+          "args": [
+            {
+              "args": [
+                "Hello",
+                "35"
+              ],
+              "alias": "Hello 35"
+            }
+          ],
+          "executable_type": "BINARY",
+          "relpath": "dbg_test_execs/rust/target/debug/target1_ownership",
+          "alias": "ownership"
+        },
+        {
+          "relpath": "dbg_test_execs/rust/target/debug/target2_enums",
+          "executable_type": "BINARY",
+          "args": [],
+          "alias": "enums"
+        },
+        {
+          "relpath": "dbg_test_execs/rust/target/debug/target3_panics",
+          "alias": "panics",
+          "args": [],
+          "executable_type": "BINARY"
+        }
+      ],
+      "debug_type": "rust"
+    },
+    {
+      "targets": [
+        {
+          "args": [
+            {
+              "args": [
+                "10"
+              ],
+              "alias": "10"
+            }
+          ],
+          "executable_type": "PYTHON",
+          "relpath": "dbg_test_execs/python/target1_loops.py",
+          "alias": "loops"
+        },
+        {
+          "args": [],
+          "executable_type": "PYTHON",
+          "relpath": "dbg_test_execs/python/target2_callstack.py",
+          "alias": "name"
+        },
+        {
+          "args": [],
+          "executable_type": "PYTHON",
+          "relpath": "dbg_test_execs/python/target3_exceptions.py",
+          "alias": "exceptions"
+        }
+      ],
+      "debug_type": "python"
+    }
+  ]
+}
