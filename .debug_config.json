@@ -1,88 +1,88 @@
 {
   "types": [
     {
+      "debug_type": "cpp",
       "targets": [
         {
+          "alias": "pointers",
           "args": [],
           "executable_type": "BINARY",
-          "relpath": "dbg_test_execs/cpp/build/target1_pointers",
-          "alias": "pointers"
+          "relpath": "dbg_test_execs/cpp/build/target1_pointers"
         },
         {
+          "alias": "classes",
           "args": [],
           "executable_type": "BINARY",
-          "relpath": "dbg_test_execs/cpp/build/target2_classes",
-          "alias": "classes"
+          "relpath": "dbg_test_execs/cpp/build/target2_classes"
         },
         {
+          "alias": "threads",
           "args": [],
           "executable_type": "BINARY",
-          "relpath": "dbg_test_execs/cpp/build/target3_threads",
-          "alias": "threads"
+          "relpath": "dbg_test_execs/cpp/build/target3_threads"
         }
-      ],
-      "debug_type": "cpp"
+      ]
     },
     {
+      "debug_type": "rust",
       "targets": [
         {
+          "alias": "ownership",
           "args": [
             {
+              "alias": "Hello 35",
               "args": [
                 "Hello",
                 "35"
-              ],
-              "alias": "Hello 35"
+              ]
             }
           ],
           "executable_type": "BINARY",
-          "relpath": "dbg_test_execs/rust/target/debug/target1_ownership",
-          "alias": "ownership"
+          "relpath": "dbg_test_execs/rust/target/debug/target1_ownership"
         },
         {
-          "relpath": "dbg_test_execs/rust/target/debug/target2_enums",
-          "executable_type": "BINARY",
+          "alias": "enums",
           "args": [],
-          "alias": "enums"
+          "executable_type": "BINARY",
+          "relpath": "dbg_test_execs/rust/target/debug/target2_enums"
         },
         {
-          "relpath": "dbg_test_execs/rust/target/debug/target3_panics",
           "alias": "panics",
           "args": [],
-          "executable_type": "BINARY"
+          "executable_type": "BINARY",
+          "relpath": "dbg_test_execs/rust/target/debug/target3_panics"
         }
-      ],
-      "debug_type": "rust"
+      ]
     },
     {
+      "debug_type": "python",
       "targets": [
         {
+          "alias": "loops",
           "args": [
             {
+              "alias": "10",
               "args": [
                 "10"
-              ],
-              "alias": "10"
+              ]
             }
           ],
           "executable_type": "PYTHON",
-          "relpath": "dbg_test_execs/python/target1_loops.py",
-          "alias": "loops"
+          "relpath": "dbg_test_execs/python/target1_loops.py"
         },
         {
+          "alias": "name",
           "args": [],
           "executable_type": "PYTHON",
-          "relpath": "dbg_test_execs/python/target2_callstack.py",
-          "alias": "name"
+          "relpath": "dbg_test_execs/python/target2_callstack.py"
         },
         {
+          "alias": "exceptions",
           "args": [],
           "executable_type": "PYTHON",
-          "relpath": "dbg_test_execs/python/target3_exceptions.py",
-          "alias": "exceptions"
+          "relpath": "dbg_test_execs/python/target3_exceptions.py"
         }
-      ],
-      "debug_type": "python"
+      ]
     }
   ]
 }
