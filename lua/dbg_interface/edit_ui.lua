@@ -11,14 +11,21 @@ function M.edit_stuff(stuff, datatype, callback)
             json = utils.beautify_json(json)
             local result = EditWin.async_open_for_edit(json, "json")
             if result == nil then return end
-            local table_res = datatype.from_table(utils.json_decode(result))
+            local ok, decoded = pcall(utils.json_decode, result)
+            if not ok then
+                error("Invalid JSON: " .. tostring(decoded))
+            end
+            local ok2, table_res = pcall(datatype.from_table, decoded)
+            if not ok2 then
+                error("Invalid format: " .. tostring(table_res))
+            end
             if callback then
                 callback(table_res)
             end
         end,
         function(err)
             if err then
-                vim.notify("An error occurred: " .. tostring(err), vim.log.levels.ERROR)
+                vim.notify(tostring(err), vim.log.levels.ERROR)
             end
         end
     )
@@ -32,14 +39,17 @@ function M.edit_table(tbl, callback)
             json = utils.beautify_json(json)
             local result = EditWin.async_open_for_edit(json, "json")
             if result == nil then return end
-            local table_res = utils.json_decode(result)
+            local ok, decoded = pcall(utils.json_decode, result)
+            if not ok then
+                error("Invalid JSON: " .. tostring(decoded))
+            end
             if callback then
-                callback(table_res)
+                callback(decoded)
             end
         end,
         function(err)
             if err then
-                vim.notify("An error occurred: " .. tostring(err), vim.log.levels.ERROR)
+                vim.notify(tostring(err), vim.log.levels.ERROR)
             end
         end
     )

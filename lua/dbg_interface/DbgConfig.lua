@@ -24,6 +24,15 @@ end
 ---@param tbl table
 ---@return DebugConfig
 function DebugConfig.from_table(tbl)
+    if type(tbl) ~= "table" then
+        error("DbgConfig: expected a JSON object, got " .. type(tbl))
+    end
+    if tbl.types == nil then
+        error("DbgConfig: missing required field 'types'")
+    end
+    if type(tbl.types) ~= "table" then
+        error("DbgConfig: 'types' must be an array, got " .. type(tbl.types))
+    end
     setmetatable(tbl, DebugConfig)
     for i,_ in ipairs(tbl.types) do
         tbl.types[i] = DbgType.from_table(tbl.types[i])

@@ -30,6 +30,15 @@ end
 ---@param tbl table
 ---@return DbgArguments
 function DebugArguments.from_table(tbl)
+    if type(tbl) ~= "table" then
+        error("DbgArguments: expected a JSON object, got " .. type(tbl))
+    end
+    if tbl.args == nil then
+        error("DbgArguments: missing required field 'args'")
+    end
+    if type(tbl.args) ~= "table" then
+        error("DbgArguments: 'args' must be an array, got " .. type(tbl.args))
+    end
     setmetatable(tbl, DebugArguments)
     return tbl
 end

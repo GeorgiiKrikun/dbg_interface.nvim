@@ -32,6 +32,18 @@ end
 ---@param tbl table
 ---@return DbgTarget
 function DebugTarget.from_table(tbl)
+    if type(tbl) ~= "table" then
+        error("DbgTarget: expected a JSON object, got " .. type(tbl))
+    end
+    if not tbl.relpath or tbl.relpath == "" then
+        error("DbgTarget: missing required field 'relpath'")
+    end
+    if tbl.args == nil then
+        error("DbgTarget '" .. tbl.relpath .. "': missing required field 'args'")
+    end
+    if type(tbl.args) ~= "table" then
+        error("DbgTarget '" .. tbl.relpath .. "': 'args' must be an array, got " .. type(tbl.args))
+    end
     setmetatable(tbl, DebugTarget)
     for i,_ in ipairs(tbl.args) do
         tbl.args[i] = DebugArguments.from_table(tbl.args[i])

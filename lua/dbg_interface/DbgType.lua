@@ -28,6 +28,18 @@ end
 ---@param tbl table
 ---@return DbgType
 function DbgType.from_table(tbl)
+    if type(tbl) ~= "table" then
+        error("DbgType: expected a JSON object, got " .. type(tbl))
+    end
+    if not tbl.debug_type or tbl.debug_type == "" then
+        error("DbgType: missing required field 'debug_type'")
+    end
+    if tbl.targets == nil then
+        error("DbgType '" .. tbl.debug_type .. "': missing required field 'targets'")
+    end
+    if type(tbl.targets) ~= "table" then
+        error("DbgType '" .. tbl.debug_type .. "': 'targets' must be an array, got " .. type(tbl.targets))
+    end
     setmetatable(tbl, DbgType)
     for i,_ in ipairs(tbl.targets) do
         tbl.targets[i] = DbgTarget.from_table(tbl.targets[i])
