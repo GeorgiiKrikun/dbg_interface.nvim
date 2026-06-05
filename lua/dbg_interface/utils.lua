@@ -18,7 +18,7 @@ function M.beautify_json(json)
     if vim.fn.executable("jq") == 1 then
         return vim.fn.system("jq --sort-keys .", json)
     else
-        vim.notify_once("`jq` is absent from a system. Json will not be human readable.")
+        vim.notify_once("`jq` is absent from a system. Json will not be human readable and keys won't be sorted. For end users that means that sometimes without any changes to `.debug_config.json`, the changes would come from randomly reordered json fields")
     end
 
     return json
